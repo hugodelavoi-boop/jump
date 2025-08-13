@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import Button from '../components/Button';
-import { getEnrollmentBySessionId } from '../lib/enrollment';
+import { getEnrollmentBySessionId, createEnrollment } from '../lib/enrollment';
+import { useAuth } from '../hooks/useAuth';
 
 interface EnrollmentDetails {
   program_name: string;
@@ -14,13 +15,32 @@ const Success: React.FC = () => {
   const navigate = useNavigate();
   const [enrollmentDetails, setEnrollmentDetails] = useState<EnrollmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const { session } = useAuth();
 
   useEffect(() => {
     const fetchEnrollmentDetails = async () => {
       try {
         const sessionId = searchParams.get('session_id');
         if (!sessionId) {
-          throw new Error('No session ID found');
+          // Check if we have enrollment data in session storage
+          const storedData = sessionStorage.getItem('enrollmentData');
+          if (storedData && session) {
+            const enrollmentData = JSON.parse(storedData);
+            
+            // Create the enrollment record
+            await createEnrollment(enrollmentData, session.user.id, sessionId || 'manual');
+            
+            setEnrollmentDetails({
+              program_name: enrollmentData.program || 'Selected Program',
+              child_name: enrollmentData.childName
+            });
+            
+            // Clear the stored data
+            sessionStorage.removeItem('enrollmentData');
+          } else {
+            throw new Error('No enrollment information found');
+          }
+          return;
         }
 
         const enrollment = await getEnrollmentBySessionId(sessionId);
@@ -35,8 +55,10 @@ const Success: React.FC = () => {
       }
     };
 
-    fetchEnrollmentDetails();
-  }, [searchParams]);
+    if (session) {
+      fetchEnrollmentDetails();
+    }
+  }, [searchParams, session]);
 
   if (loading) {
     return (

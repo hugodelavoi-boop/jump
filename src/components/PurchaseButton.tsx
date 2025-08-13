@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { createCheckoutSession } from '../lib/stripe';
 import Button from './Button';
+import AuthWrapper from './AuthWrapper';
 
 interface PurchaseButtonProps {
   priceId: string;
@@ -14,14 +14,8 @@ interface PurchaseButtonProps {
 const PurchaseButton: React.FC<PurchaseButtonProps> = ({ priceId, mode, children, className }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { session } = useAuth();
-  const navigate = useNavigate();
 
   const handlePurchase = async () => {
-    if (!session) {
-      navigate('/login', { state: { returnTo: window.location.pathname } });
-      return;
-    }
-
     try {
       setIsLoading(true);
 
@@ -46,15 +40,17 @@ const PurchaseButton: React.FC<PurchaseButtonProps> = ({ priceId, mode, children
   };
 
   return (
-    <Button
-      variant="primary"
-      onClick={handlePurchase}
-      disabled={isLoading}
-      className={className}
-    >
-      {isLoading ? 'Loading...' : children}
-    </Button>
+    <AuthWrapper requiredForAction="make a purchase">
+      <Button
+        variant="primary"
+        onClick={handlePurchase}
+        disabled={isLoading}
+        className={className}
+      >
+        {isLoading ? 'Loading...' : children}
+      </Button>
+    </AuthWrapper>
   );
 };
 
-export default PurchaseButton
+export default PurchaseButton;

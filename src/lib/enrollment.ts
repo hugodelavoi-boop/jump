@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { createCheckoutSession } from './stripe';
 
 export interface EnrollmentData {
   parentName: string;
@@ -11,21 +12,6 @@ export interface EnrollmentData {
   program: string;
   requiresPickup: boolean;
   photoPermission: boolean;
-}
-
-export async function getPaymentUrl(programId: string): Promise<string | null> {
-  const { data, error } = await supabase
-    .from('stripe_products')
-    .select('Payment_URL')
-    .eq('price_id', programId)
-    .single();
-
-  if (error) {
-    console.error('Failed to fetch payment URL:', error);
-    throw new Error('Failed to fetch payment URL');
-  }
-
-  return data?.Payment_URL || null;
 }
 
 export async function createEnrollment(
@@ -72,4 +58,40 @@ export async function getEnrollmentBySessionId(sessionId: string) {
   }
 
   return data;
+}
+
+export async function createEnrollmentCheckout(
+  enrollmentData: EnrollmentData,
+  userId: string,
+  accessToken: string
+): Promise<string> {
+  try {
+    // First, get the product details to determine mode
+    const { data: product, error: productError } = await supabase
+      .from('stripe_products')
+      .select('*')
+      .eq('price_id', enrollmentData.program)
+      .single();
+
+    if (productError) {
+      throw new Error('Failed to fetch program details');
+    }
+
+    // Create checkout session
+    const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${window.location.origin}/enrol`;
+
+    const checkoutUrl = await createCheckoutSession(
+      enrollmentData.program,
+      product.mode as 'payment' | 'subscription',
+      accessToken,
+      successUrl,
+      cancelUrl
+    );
+
+    return checkoutUrl;
+  } catch (error) {
+    console.error('Failed to create enrollment checkout:', error);
+    throw error;
+  }
 }

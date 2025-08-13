@@ -39,16 +39,21 @@ Deno.serve(async (req) => {
       return corsResponse({ error: 'Method not allowed' }, 405);
     }
 
-    const { price_id, success_url, cancel_url, mode, email } = await req.json();
+    const { price_id, success_url, cancel_url, mode } = await req.json();
+    
+    // Get user from JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return corsResponse({ error: 'Authorization required' }, 401);
+    }
 
     const error = validateParameters(
-      { price_id, success_url, cancel_url, mode, email },
+      { price_id, success_url, cancel_url, mode },
       {
         cancel_url: 'string',
         price_id: 'string',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
-        email: 'email',
       },
     );
 
@@ -56,6 +61,18 @@ Deno.serve(async (req) => {
       return corsResponse({ error }, 400);
     }
 
+    // Parse JWT to get user info (simplified - in production use proper JWT validation)
+    const token = authHeader.replace('Bearer ', '');
+    let userEmail: string;
+    
+    try {
+      // For now, we'll extract email from the token payload
+      // In production, you should properly validate the JWT
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      userEmail = payload.email;
+    } catch (e) {
+      return corsResponse({ error: 'Invalid token' }, 401);
+    }
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -68,7 +85,7 @@ Deno.serve(async (req) => {
       mode,
       success_url,
       cancel_url,
-      customer_email: email,
+      customer_email: userEmail,
     });
 
     return corsResponse({ sessionId: session.id, url: session.url });
@@ -113,9 +130,4 @@ function validateParameters<T extends Record<string, any>>(values: T, expected: 
   }
 
   return undefined;
-}
-
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
 }

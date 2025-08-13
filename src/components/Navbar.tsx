@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import Button from './Button';
+import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { session } = useAuth();
   
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -64,6 +67,24 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
+            
+            {session && (
+              <div className="flex items-center space-x-4">
+                <div className={`flex items-center space-x-2 ${isScrolled ? 'text-navy' : 'text-white'}`}>
+                  <User className="w-4 h-4" />
+                  <span className="font-nunito text-sm">{session.user.email}</span>
+                </div>
+                <button
+                  onClick={() => supabase.auth.signOut()}
+                  className={`p-2 rounded-lg hover:bg-white/10 transition-colors ${
+                    isScrolled ? 'text-navy hover:bg-gray-100' : 'text-white'
+                  }`}
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
           
           {/* Mobile Navigation Button */}
@@ -94,6 +115,48 @@ const Navbar: React.FC = () => {
                   {link.name}
                 </Link>
               ))}
+              
+              {session && (
+                <Link
+                  to="/dashboard"
+                  className="px-4 py-2 text-navy hover:text-electric-blue transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
+              
+              {session && (
+                <Link
+                  to="/dashboard"
+                  className={`font-nunito font-medium hover:text-electric-blue transition-colors ${
+                    isScrolled ? 'text-navy' : 'text-white'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+              )}
+              
+              {session && (
+                <div className="px-4 py-2 border-t border-gray-200 mt-2 pt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-navy">
+                      <User className="w-4 h-4" />
+                      <span className="font-nunito text-sm">{session.user.email}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        supabase.auth.signOut();
+                        setIsOpen(false);
+                      }}
+                      className="text-navy hover:text-electric-blue transition-colors"
+                      title="Sign out"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

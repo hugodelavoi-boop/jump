@@ -1,9 +1,7 @@
-import { products } from '../stripe-config';
-
 export async function createCheckoutSession(
   priceId: string,
   mode: 'payment' | 'subscription',
-  email: string,
+  accessToken: string,
   successUrl: string,
   cancelUrl: string,
 ) {
@@ -11,11 +9,11 @@ export async function createCheckoutSession(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       price_id: priceId,
       mode,
-      email,
       success_url: successUrl,
       cancel_url: cancelUrl,
     }),
@@ -31,5 +29,6 @@ export async function createCheckoutSession(
 }
 
 export function getProductByPriceId(priceId: string) {
-  return Object.values(products).find((product) => product.priceId === priceId);
+  // This function can remain for static product lookups if needed
+  return null;
 }
