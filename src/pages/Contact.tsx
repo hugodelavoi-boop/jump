@@ -92,10 +92,11 @@ const Contact: React.FC = () => {
                   data-netlify="true"
                   data-netlify-honeypot="bot-field"
                   className="space-y-6"
-                  action="/contact?success=true"
+                  action="/contact"
                 >
                   {/* Netlify hidden field for form name */}
                   <input type="hidden" name="form-name" value="contact" />
+                  <input type="hidden" name="success" value="true" />
                   {/* Netlify honeypot anti-spam */}
                   <p className="hidden">
                     <label>
