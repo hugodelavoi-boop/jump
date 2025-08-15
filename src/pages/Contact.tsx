@@ -14,7 +14,7 @@ const Contact: React.FC = () => {
     message: '',
     isSchool: false
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(isSuccess);
 
   useEffect(() => {
     if (isSuccess) {
