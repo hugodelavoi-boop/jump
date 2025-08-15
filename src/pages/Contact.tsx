@@ -39,6 +39,7 @@ const Contact: React.FC = () => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // Let Netlify handle the form submission naturally
+    // The form will redirect to /contact?success=true after submission
   };
 
   return (
@@ -89,10 +90,9 @@ const Contact: React.FC = () => {
                 <form
                   name="contact"
                   method="POST"
-                  data-netlify="true"
-                  data-netlify-honeypot="bot-field"
+                  netlify
+                  netlify-honeypot="bot-field"
                   className="space-y-6"
-                  action="/contact?success=true"
                 >
                   {/* Netlify hidden field for form name */}
                   <input type="hidden" name="form-name" value="contact" />
@@ -102,6 +102,7 @@ const Contact: React.FC = () => {
                       Don’t fill this out: <input name="bot-field" />
                     </label>
                   </p>
+                  
                   <div>
                     <label htmlFor="name" className="block font-nunito font-medium text-navy mb-2">
                       Full Name
@@ -146,6 +147,7 @@ const Contact: React.FC = () => {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-electric-blue focus:border-electric-blue transition-colors"
                     ></textarea>
                   </div>
+                  
                   <label className="flex items-start gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
@@ -158,6 +160,8 @@ const Contact: React.FC = () => {
                       I'm a school interested in hosting Jump Start Sports
                     </span>
                   </label>
+                  
+                  <input type="hidden" name="success-redirect" value="/contact?success=true" />
 
                   <Button
                     variant="primary"
