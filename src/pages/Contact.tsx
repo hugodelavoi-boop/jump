@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Send, CheckCircle2 } from 'lucide-react';
 
 const Contact: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const isSuccess = searchParams.get('success') === 'true';
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,6 +15,12 @@ const Contact: React.FC = () => {
     isSchool: false
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setIsSubmitted(true);
+    }
+  }, [isSuccess]);
 
   // Handle field changes, keep fields controlled for UX if desired
   const handleChange = (
@@ -28,19 +38,7 @@ const Contact: React.FC = () => {
   // via a field on the search params (?success=1), or just set state on submit
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Allow Netlify to handle submission, then show the thanks message
-    const form = e.currentTarget;
-    const data = new FormData(form);
-
-    fetch('/', {
-      method: 'POST',
-      body: data,
-      headers: { 'Accept': 'application/x-www-form-urlencoded' }
-    })
-      .then(() => setIsSubmitted(true))
-      .catch(() => window.alert('Submission failed. Please email us directly.'));
+    // Let Netlify handle the form submission naturally
   };
 
   return (
@@ -91,11 +89,10 @@ const Contact: React.FC = () => {
                 <form
                   name="contact"
                   method="POST"
-                  netlify
                   data-netlify="true"
                   data-netlify-honeypot="bot-field"
                   className="space-y-6"
-                  onSubmit={handleFormSubmit}
+                  action="/contact-success"
                 >
                   {/* Netlify hidden field for form name */}
                   <input type="hidden" name="form-name" value="contact" />
