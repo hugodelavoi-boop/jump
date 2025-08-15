@@ -19,6 +19,11 @@ export async function createEnrollment(
   userId: string,
   checkoutSessionId: string
 ) {
+  // Validate required fields
+  if (!data.parentName || !data.email || !data.childName || !data.childAge || !data.childSchool || !data.program) {
+    throw new Error('Missing required enrollment information');
+  }
+
   const { error } = await supabase
     .from('enrollments')
     .insert([
@@ -26,7 +31,6 @@ export async function createEnrollment(
         user_id: userId,
         parent_name: data.parentName,
         email: data.email,
-        mobile: data.mobile,
         child_name: data.childName,
         child_age: data.childAge,
         child_school: data.childSchool,

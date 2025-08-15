@@ -11,13 +11,38 @@ const Home: React.FC = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   useEffect(() => {
-    // Initialize Vimeo player
-    const iframe = document.querySelector('iframe');
-    if (iframe) {
-      const player = new Vimeo.Player(iframe);
-      player.on('play', () => {
+    // Initialize Vimeo player safely
+    const initializePlayer = () => {
+      const iframe = document.querySelector('iframe');
+      if (iframe && window.Vimeo) {
+        try {
+          const player = new window.Vimeo.Player(iframe);
+          player.on('play', () => {
+            setIsVideoLoaded(true);
+          });
+        } catch (error) {
+          console.warn('Vimeo player initialization failed:', error);
+          setIsVideoLoaded(true); // Fallback to show content
+        }
+      }
+    };
+
+    // Wait for Vimeo script to load
+    if (window.Vimeo) {
+      initializePlayer();
+    } else {
+      const checkVimeo = setInterval(() => {
+        if (window.Vimeo) {
+          clearInterval(checkVimeo);
+          initializePlayer();
+        }
+      }, 100);
+
+      // Cleanup after 5 seconds
+      setTimeout(() => {
+        clearInterval(checkVimeo);
         setIsVideoLoaded(true);
-      });
+      }, 5000);
     }
   }, []);
 

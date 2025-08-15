@@ -117,28 +117,14 @@ const Navbar: React.FC = () => {
               ))}
               
               {session && (
-                <Link
-                  to="/dashboard"
-                  className="px-4 py-2 text-navy hover:text-electric-blue transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Dashboard
-                </Link>
-              )}
-              
-              {session && (
-                <Link
-                  to="/dashboard"
-                  className={`font-nunito font-medium hover:text-electric-blue transition-colors ${
-                    isScrolled ? 'text-navy' : 'text-white'
-                  }`}
-                >
-                  Dashboard
-                </Link>
-              )}
-              
-              {session && (
                 <div className="px-4 py-2 border-t border-gray-200 mt-2 pt-4">
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-navy hover:text-electric-blue transition-colors mb-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-navy">
                       <User className="w-4 h-4" />
@@ -156,6 +142,17 @@ const Navbar: React.FC = () => {
                     </button>
                   </div>
                 </div>
+              )}
+              
+              {session && (
+                <Link
+                  to="/dashboard"
+                  className={`font-nunito font-medium hover:text-electric-blue transition-colors ${
+                    isScrolled ? 'text-navy' : 'text-white'
+                  }`}
+                >
+                  Dashboard
+                </Link>
               )}
             </div>
           </div>

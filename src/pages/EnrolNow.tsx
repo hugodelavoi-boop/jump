@@ -12,7 +12,6 @@ import ConsentWaiver from '../components/ConsentWaiver';
 interface FormData {
   parentName: string;
   email: string;
-  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;
@@ -27,7 +26,6 @@ const EnrolNow: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     parentName: '',
     email: '',
-    mobile: '',
     childName: '',
     childAge: '',
     childSchool: '',
