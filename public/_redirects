@@ -1,2 +1,2 @@
-/contact-success /contact?success=true 200
+/contact-success /contact?success=true 302
 /*    /index.html   200
