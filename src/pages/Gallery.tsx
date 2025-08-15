@@ -13,32 +13,32 @@ const Gallery: React.FC = () => {
 
   const galleryItems = [
     {
-      src: 'https://imgur.com/ks0DqUZ',
+      src: 'https://i.imgur.com/ks0DqUZ.jpeg',
       caption: 'Mini Kickers in action',
       alt: 'Children playing soccer with coach'
     },
     {
-      src: 'https://imgur.com/4KGPnp2',
+      src: 'https://i.imgur.com/4KGPnp2.jpeg',
       caption: 'Junior Champions training session',
       alt: 'Kids practicing soccer drills'
     },
     {
-      src: 'https://imgur.com/qbL53Nz',
+      src: 'https://i.imgur.com/qbL53Nz.jpeg',
       caption: 'Holiday camp fun',
       alt: 'Children enjoying sports activities'
     },
     {
-      src: 'https://imgur.com/DuuBkC2',
+      src: 'https://i.imgur.com/DuuBkC2.jpeg',
       caption: 'Team building activities',
       alt: 'Group of children working together'
     },
     {
-      src: 'https://imgur.com/DSMqTbC',
+      src: 'https://i.imgur.com/DSMqTbC.jpeg',
       caption: 'Skills development',
       alt: 'Children practicing sports skills'
     },
     {
-      src: 'https://imgur.com/GIUz4YF',
+      src: 'https://i.imgur.com/GIUz4YF.jpeg',
       caption: 'Learning through play',
       alt: 'Kids having fun while learning sports'
     }
