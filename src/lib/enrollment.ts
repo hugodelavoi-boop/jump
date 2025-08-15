@@ -4,7 +4,6 @@ import { createCheckoutSession } from './stripe';
 export interface EnrollmentData {
   parentName: string;
   email: string;
-  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;

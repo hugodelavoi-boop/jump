@@ -172,22 +172,6 @@ const EnrolNow: React.FC = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="mobile" className="block font-nunito font-medium text-navy mb-2">
-                      Mobile Number
-                    </label>
-                    <input
-                      type="tel"
-                      id="mobile"
-                      name="mobile"
-                      value={formData.mobile}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-electric-blue focus:border-electric-blue transition-colors"
-                      placeholder="0400 000 000"
-                    />
-                  </div>
-
-                  <div>
                     <label htmlFor="childName" className="block font-nunito font-medium text-navy mb-2">
                       Child Full Name
                     </label>

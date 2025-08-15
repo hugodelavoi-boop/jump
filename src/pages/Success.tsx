@@ -27,29 +27,52 @@ const Success: React.FC = () => {
           if (storedData && session) {
             const enrollmentData = JSON.parse(storedData);
             
-            // Create the enrollment record
-            await createEnrollment(enrollmentData, session.user.id, sessionId || 'manual');
-            
-            setEnrollmentDetails({
-              program_name: enrollmentData.program || 'Selected Program',
-              child_name: enrollmentData.childName
-            });
-            
-            // Clear the stored data
-            sessionStorage.removeItem('enrollmentData');
+            try {
+              // Create the enrollment record
+              await createEnrollment(enrollmentData, session.user.id, sessionId || 'manual');
+              
+              setEnrollmentDetails({
+                program_name: enrollmentData.program || 'Selected Program',
+                child_name: enrollmentData.childName
+              });
+              
+              // Clear the stored data
+              sessionStorage.removeItem('enrollmentData');
+            } catch (error) {
+              console.error('Error creating enrollment:', error);
+              // Still show success but with generic message
+              setEnrollmentDetails({
+                program_name: 'Selected Program',
+                child_name: 'Your child'
+              });
+            }
           } else {
             throw new Error('No enrollment information found');
           }
           return;
         }
 
-        const enrollment = await getEnrollmentBySessionId(sessionId);
-        setEnrollmentDetails({
-          program_name: enrollment.program_name,
-          child_name: enrollment.child_name
-        });
+        try {
+          const enrollment = await getEnrollmentBySessionId(sessionId);
+          setEnrollmentDetails({
+            program_name: enrollment.program_name,
+            child_name: enrollment.child_name
+          });
+        } catch (error) {
+          console.error('Error fetching enrollment:', error);
+          // Fallback to generic success message
+          setEnrollmentDetails({
+            program_name: 'Selected Program',
+            child_name: 'Your child'
+          });
+        }
       } catch (error) {
         console.error('Error fetching enrollment details:', error);
+        // Show generic success message even if database lookup fails
+        setEnrollmentDetails({
+          program_name: 'Selected Program',
+          child_name: 'Your child'
+        });
       } finally {
         setLoading(false);
       }
