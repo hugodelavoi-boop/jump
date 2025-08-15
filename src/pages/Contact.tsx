@@ -91,6 +91,7 @@ const Contact: React.FC = () => {
                 <form
                   name="contact"
                   method="POST"
+                  netlify
                   data-netlify="true"
                   data-netlify-honeypot="bot-field"
                   className="space-y-6"
