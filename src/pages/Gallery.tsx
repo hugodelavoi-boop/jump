@@ -13,32 +13,32 @@ const Gallery: React.FC = () => {
 
   const galleryItems = [
     {
-      src: 'https://images.pexels.com/photos/8613835/pexels-photo-8613835.jpeg',
+      src: 'https://imgur.com/ks0DqUZ',
       caption: 'Mini Kickers in action',
       alt: 'Children playing soccer with coach'
     },
     {
-      src: 'https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg',
+      src: 'https://imgur.com/4KGPnp2',
       caption: 'Junior Champions training session',
       alt: 'Kids practicing soccer drills'
     },
     {
-      src: 'https://images.pexels.com/photos/8224733/pexels-photo-8224733.jpeg',
+      src: 'https://imgur.com/qbL53Nz',
       caption: 'Holiday camp fun',
       alt: 'Children enjoying sports activities'
     },
     {
-      src: 'https://images.pexels.com/photos/3076509/pexels-photo-3076509.jpeg',
+      src: 'https://imgur.com/DuuBkC2',
       caption: 'Team building activities',
       alt: 'Group of children working together'
     },
     {
-      src: 'https://images.pexels.com/photos/3041346/pexels-photo-3041346.jpeg',
+      src: 'https://imgur.com/DSMqTbC',
       caption: 'Skills development',
       alt: 'Children practicing sports skills'
     },
     {
-      src: 'https://images.pexels.com/photos/3467153/pexels-photo-3467153.jpeg',
+      src: 'https://imgur.com/GIUz4YF',
       caption: 'Learning through play',
       alt: 'Kids having fun while learning sports'
     }
