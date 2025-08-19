@@ -211,7 +211,7 @@ const Contact: React.FC = () => {
                 </p>
                 <div className="flex space-x-4">
                   <a
-                    href="https://instagram.com/jumpstartsports"
+                    href="https://instagram.com/jumpstartsportsau"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
