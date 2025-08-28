@@ -5,7 +5,6 @@ export interface EnrollmentData {
   parentName: string;
   email: string;
   mobile: string;
-  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;

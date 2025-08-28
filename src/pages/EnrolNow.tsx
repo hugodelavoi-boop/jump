@@ -127,12 +127,30 @@ const EnrolNow: React.FC = () => {
       console.log('Checkout URL created:', checkoutUrl);
       console.log('Session ID:', sessionId);
 
-      // Create enrollment record with the actual session ID
+      // Store enrollment data in localStorage before redirect
+      const enrollmentForStorage = {
+        parentName: formData.parentName,
+        email: formData.email,
+        mobile: formData.mobile,
+        childName: formData.childName,
+        childAge: formData.childAge,
+        childSchool: formData.childSchool,
+        medicalInfo: formData.medicalInfo,
+        program: formData.program,
+        programName: selectedProduct?.name || 'Selected Program',
+        requiresPickup: formData.requiresPickup,
+        photoPermission: formData.photoPermission,
+        sessionId: sessionId,
+        checkoutSessionId: sessionId
+      };
+      localStorage.setItem('pendingEnrollment', JSON.stringify(enrollmentForStorage));
+      console.log('📦 Stored enrollment data in localStorage:', enrollmentForStorage);
+
+      // Create enrollment record in database with the actual session ID
       console.log('Creating enrollment record...');
       await createEnrollment({
         parentName: formData.parentName,
         email: formData.email,
-        mobile: formData.mobile,
         mobile: formData.mobile,
         childName: formData.childName,
         childAge: formData.childAge,
@@ -145,14 +163,6 @@ const EnrolNow: React.FC = () => {
 
       console.log('Enrollment created successfully');
       setSuccess(true);
-
-      // Store enrollment data in localStorage for the success page
-      const enrollmentForStorage = {
-        ...formData,
-        sessionId: sessionId
-      };
-      localStorage.setItem('pendingEnrollment', JSON.stringify(enrollmentForStorage));
-      console.log('📦 Stored enrollment data in localStorage');
 
       // Redirect to checkout
       setTimeout(() => {

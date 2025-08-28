@@ -35,6 +35,120 @@ const Success: React.FC = () => {
         
         if (!sessionId) {
           console.log('⚠️ No session ID found - showing generic success');
+          // Try to get data from localStorage as fallback
+          const storedData = localStorage.getItem('pendingEnrollment');
+          if (storedData) {
+            const parsed = JSON.parse(storedData);
+            setEnrollmentDetails({
+              program_name: parsed.programName || 'Selected Program',
+              child_name: parsed.childName || 'Your child',
+              parent_name: parsed.parentName || '',
+              email: parsed.email || '',
+              mobile: parsed.mobile || '',
+              child_age: parsed.childAge || '',
+              child_school: parsed.childSchool || '',
+              medical_info: parsed.medicalInfo || '',
+              requires_pickup: parsed.requiresPickup || false,
+              photo_permission: parsed.photoPermission || false,
+              checkout_session_id: sessionId || ''
+            });
+          } else {
+            setEnrollmentDetails({
+              program_name: 'Selected Program',
+              child_name: 'Your child',
+              parent_name: '',
+              email: '',
+              mobile: '',
+              child_age: '',
+              child_school: '',
+              medical_info: '',
+              requires_pickup: false,
+              photo_permission: false,
+              checkout_session_id: ''
+            });
+          }
+          setLoading(false);
+          return;
+        }
+
+        // First try to get data from localStorage (most reliable)
+        const storedData = localStorage.getItem('pendingEnrollment');
+        if (storedData) {
+          console.log('📦 Found enrollment data in localStorage');
+          const parsed = JSON.parse(storedData);
+          if (parsed.sessionId === sessionId || parsed.checkoutSessionId === sessionId) {
+            console.log('✅ Session ID matches, using localStorage data');
+            setEnrollmentDetails({
+              program_name: parsed.programName || 'Selected Program',
+              child_name: parsed.childName,
+              parent_name: parsed.parentName,
+              email: parsed.email,
+              mobile: parsed.mobile,
+              child_age: parsed.childAge,
+              child_school: parsed.childSchool,
+              medical_info: parsed.medicalInfo || '',
+              requires_pickup: parsed.requiresPickup,
+              photo_permission: parsed.photoPermission,
+              checkout_session_id: sessionId
+            });
+            
+            // Check if form already submitted
+            const submittedKey = `netlify_submitted_${sessionId}`;
+            const alreadySubmitted = localStorage.getItem(submittedKey);
+            
+            if (!alreadySubmitted) {
+              // Submit form after component renders
+              setTimeout(() => {
+                const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
+                if (form) {
+                  console.log('📝 Submitting form to Netlify...');
+                  form.submit();
+                  localStorage.setItem(submittedKey, 'true');
+                  setFormSubmitted(true);
+                }
+              }, 1000);
+            } else {
+              setFormSubmitted(true);
+            }
+            
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Fallback: try to fetch from database
+        console.log('🔍 Fetching enrollment details...');
+        try {
+          const enrollment = await getEnrollmentBySessionId(sessionId);
+          console.log('📊 Enrollment details fetched:', enrollment);
+          
+          if (enrollment) {
+            setEnrollmentDetails(enrollment);
+            
+            // Check if form already submitted
+            const submittedKey = `netlify_submitted_${sessionId}`;
+            const alreadySubmitted = localStorage.getItem(submittedKey);
+            
+            if (!alreadySubmitted) {
+              setTimeout(() => {
+                const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
+                if (form) {
+                  console.log('📝 Submitting form to Netlify...');
+                  form.submit();
+                  localStorage.setItem(submittedKey, 'true');
+                  setFormSubmitted(true);
+                }
+              }, 1000);
+            } else {
+              setFormSubmitted(true);
+            }
+          } else {
+            console.log('⚠️ No enrollment found in database, using fallback');
+            throw new Error('No enrollment data found');
+          }
+        } catch (dbError) {
+          console.log('⚠️ Database fetch failed, using fallback data');
+          // Create fallback data
           setEnrollmentDetails({
             program_name: 'Selected Program',
             child_name: 'Your child',
@@ -46,39 +160,8 @@ const Success: React.FC = () => {
             medical_info: '',
             requires_pickup: false,
             photo_permission: false,
-            checkout_session_id: ''
+            checkout_session_id: sessionId
           });
-          setLoading(false);
-          return;
-        }
-
-        // Check if we already submitted for this session
-        const submittedKey = `netlify_submitted_${sessionId}`;
-        const alreadySubmitted = localStorage.getItem(submittedKey);
-        
-        if (alreadySubmitted) {
-          console.log('✅ Form already submitted for this session');
-          setFormSubmitted(true);
-        }
-
-        console.log('🔍 Fetching enrollment details...');
-        const enrollment = await getEnrollmentBySessionId(sessionId);
-        console.log('📊 Enrollment details fetched:', enrollment);
-        setEnrollmentDetails(enrollment);
-        
-        // Submit to Netlify if not already done
-        if (!alreadySubmitted) {
-          console.log('📤 Preparing form submission...');
-          // We'll trigger the form submission after the component renders
-          setTimeout(() => {
-            const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
-            if (form) {
-              console.log('📝 Submitting form to Netlify...');
-              form.submit();
-              localStorage.setItem(submittedKey, 'true');
-              setFormSubmitted(true);
-            }
-          }, 1000);
         }
       } catch (error) {
         console.error('💥 Error in fetchAndSubmit:', error);
