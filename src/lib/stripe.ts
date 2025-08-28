@@ -5,7 +5,14 @@ export async function createCheckoutSession(
   successUrl: string,
   cancelUrl: string,
 ) {
-  console.log('Creating checkout session with:', { priceId, mode, successUrl, cancelUrl });
+  console.log('Creating checkout session with:', { 
+    priceId, 
+    mode, 
+    successUrl, 
+    cancelUrl,
+    modeType: typeof mode,
+    modeValue: mode 
+  });
   console.log('Access token available:', !!accessToken);
   console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
   

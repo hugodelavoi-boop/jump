@@ -91,9 +91,11 @@ const EnrolNow: React.FC = () => {
       const cancelUrl = `${window.location.origin}/enrol`;
       
       console.log('Creating checkout session...');
+      console.log('Mode being passed:', selectedProduct.mode);
+      
       const checkoutUrl = await createCheckoutSession(
         formData.program,
-        selectedProduct.mode as 'payment' | 'subscription',
+        selectedProduct.mode || 'payment',
         session.access_token,
         successUrl,
         cancelUrl
