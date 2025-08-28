@@ -25,122 +25,6 @@ const Success: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const [isRetrying, setIsRetrying] = useState(false);
-
-  const submitToNetlify = async (enrollmentData: EnrollmentDetails) => {
-    console.log('🚀 Starting Netlify form submission...');
-    console.log('Enrollment data to submit:', enrollmentData);
-    
-    try {
-      // Method 1: Try direct form submission to Netlify
-      const formData = new FormData();
-      formData.append('form-name', 'enrollment');
-      
-      // Add all enrollment fields
-      formData.append('parentName', enrollmentData.parent_name || '');
-      formData.append('email', enrollmentData.email || '');
-      formData.append('mobile', enrollmentData.mobile || '');
-      formData.append('childName', enrollmentData.child_name || '');
-      formData.append('childAge', enrollmentData.child_age || '');
-      formData.append('childSchool', enrollmentData.child_school || '');
-      formData.append('medicalInfo', enrollmentData.medical_info || 'None provided');
-      formData.append('programName', enrollmentData.program_name || 'Unknown Program');
-      formData.append('requiresPickup', enrollmentData.requires_pickup ? 'Yes' : 'No');
-      formData.append('photoPermission', enrollmentData.photo_permission ? 'Yes' : 'No');
-      formData.append('submissionDate', new Date().toLocaleString());
-      formData.append('checkoutSessionId', enrollmentData.checkout_session_id || '');
-      formData.append('status', 'Payment Completed');
-
-      console.log('📝 Form data prepared:');
-      for (const [key, value] of formData.entries()) {
-        console.log(`  ${key}: ${value}`);
-      }
-
-      // Submit to current domain root
-      console.log('📤 Submitting to Netlify...');
-      const response = await fetch('/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        }
-      });
-
-      console.log('📨 Netlify response status:', response.status);
-      console.log('📨 Netlify response headers:', Object.fromEntries(response.headers.entries()));
-
-      if (response.ok) {
-        console.log('✅ Netlify form submission successful!');
-        return true;
-      } else {
-        const responseText = await response.text();
-        console.error('❌ Netlify submission failed:', response.status, responseText);
-        throw new Error(`Netlify submission failed: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('💥 Error submitting to Netlify:', error);
-      
-      // Method 2: Fallback - try submitting via fetch to forms endpoint
-      try {
-        console.log('🔄 Trying fallback method...');
-        
-        const fallbackData = {
-          'form-name': 'enrollment',
-          parentName: enrollmentData.parent_name || '',
-          email: enrollmentData.email || '',
-          mobile: enrollmentData.mobile || '',
-          childName: enrollmentData.child_name || '',
-          childAge: enrollmentData.child_age || '',
-          childSchool: enrollmentData.child_school || '',
-          medicalInfo: enrollmentData.medical_info || 'None provided',
-          programName: enrollmentData.program_name || 'Unknown Program',
-          requiresPickup: enrollmentData.requires_pickup ? 'Yes' : 'No',
-          photoPermission: enrollmentData.photo_permission ? 'Yes' : 'No',
-          submissionDate: new Date().toLocaleString(),
-          checkoutSessionId: enrollmentData.checkout_session_id || '',
-          status: 'Payment Completed'
-        };
-
-        const fallbackResponse = await fetch('/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams(fallbackData).toString()
-        });
-
-        if (fallbackResponse.ok) {
-          console.log('✅ Fallback submission successful!');
-          return true;
-        } else {
-          console.error('❌ Fallback submission also failed:', fallbackResponse.status);
-          throw new Error(`Both submission methods failed`);
-        }
-      } catch (fallbackError) {
-        console.error('💥 Fallback method also failed:', fallbackError);
-        throw error; // Throw original error
-      }
-    }
-  };
-
-  const retrySubmission = async () => {
-    if (!enrollmentDetails) return;
-    
-    setIsRetrying(true);
-    setSubmissionError(null);
-    
-    try {
-      console.log('🔄 Manual retry initiated...');
-      await submitToNetlify(enrollmentDetails);
-      setFormSubmitted(true);
-      console.log('✅ Manual retry successful');
-    } catch (error) {
-      console.error('❌ Manual retry failed:', error);
-      setSubmissionError(error instanceof Error ? error.message : 'Failed to submit form');
-    } finally {
-      setIsRetrying(false);
-    }
-  };
 
   useEffect(() => {
     const fetchAndSubmit = async () => {
@@ -184,19 +68,21 @@ const Success: React.FC = () => {
         
         // Submit to Netlify if not already done
         if (!alreadySubmitted) {
-          console.log('📤 Submitting to Netlify...');
-          try {
-            await submitToNetlify(enrollment);
-            setFormSubmitted(true);
-            localStorage.setItem(submittedKey, 'true');
-            console.log('✅ Netlify submission completed successfully');
-          } catch (netlifyError) {
-            console.error('❌ Netlify submission failed:', netlifyError);
-            setSubmissionError(netlifyError instanceof Error ? netlifyError.message : 'Failed to submit form');
-          }
+          console.log('📤 Preparing form submission...');
+          // We'll trigger the form submission after the component renders
+          setTimeout(() => {
+            const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
+            if (form) {
+              console.log('📝 Submitting form to Netlify...');
+              form.submit();
+              localStorage.setItem(submittedKey, 'true');
+              setFormSubmitted(true);
+            }
+          }, 1000);
         }
       } catch (error) {
         console.error('💥 Error in fetchAndSubmit:', error);
+        setSubmissionError(error instanceof Error ? error.message : 'Failed to process enrollment');
         // Create fallback data
         setEnrollmentDetails({
           program_name: 'Selected Program',
@@ -218,6 +104,19 @@ const Success: React.FC = () => {
 
     fetchAndSubmit();
   }, [searchParams]);
+
+  const manualSubmit = () => {
+    const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
+    if (form && enrollmentDetails) {
+      console.log('🔄 Manual form submission triggered');
+      form.submit();
+      setFormSubmitted(true);
+      const sessionId = searchParams.get('session_id');
+      if (sessionId) {
+        localStorage.setItem(`netlify_submitted_${sessionId}`, 'true');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -268,18 +167,10 @@ const Success: React.FC = () => {
                     Error: {submissionError}
                   </p>
                   <button
-                    onClick={retrySubmission}
-                    disabled={isRetrying}
-                    className="flex items-center gap-1 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+                    onClick={manualSubmit}
+                    className="flex items-center gap-1 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
                   >
-                    {isRetrying ? (
-                      <>
-                        <RefreshCw className="w-3 h-3 animate-spin" />
-                        Retrying...
-                      </>
-                    ) : (
-                      'Retry Submission'
-                    )}
+                    Retry Submission
                   </button>
                 </div>
               )}
@@ -301,11 +192,10 @@ const Success: React.FC = () => {
             </div>
             {!formSubmitted && enrollmentDetails && (
               <button
-                onClick={retrySubmission}
-                disabled={isRetrying}
-                className="mt-2 text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={manualSubmit}
+                className="mt-2 text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
               >
-                {isRetrying ? 'Retrying...' : 'Manual Submit to Netlify'}
+                Manual Submit to Netlify
               </button>
             )}
           </div>
@@ -329,6 +219,33 @@ const Success: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {/* Hidden Netlify Form - This is the key fix */}
+      {enrollmentDetails && (
+        <form
+          id="netlify-enrollment-form"
+          name="enrollment"
+          method="POST"
+          action="/success"
+          netlify
+          style={{ display: 'none' }}
+        >
+          <input type="hidden" name="form-name" value="enrollment" />
+          <input type="hidden" name="parentName" value={enrollmentDetails.parent_name} />
+          <input type="hidden" name="email" value={enrollmentDetails.email} />
+          <input type="hidden" name="mobile" value={enrollmentDetails.mobile} />
+          <input type="hidden" name="childName" value={enrollmentDetails.child_name} />
+          <input type="hidden" name="childAge" value={enrollmentDetails.child_age} />
+          <input type="hidden" name="childSchool" value={enrollmentDetails.child_school} />
+          <input type="hidden" name="medicalInfo" value={enrollmentDetails.medical_info || 'None provided'} />
+          <input type="hidden" name="programName" value={enrollmentDetails.program_name} />
+          <input type="hidden" name="requiresPickup" value={enrollmentDetails.requires_pickup ? 'Yes' : 'No'} />
+          <input type="hidden" name="photoPermission" value={enrollmentDetails.photo_permission ? 'Yes' : 'No'} />
+          <input type="hidden" name="submissionDate" value={new Date().toLocaleString()} />
+          <input type="hidden" name="checkoutSessionId" value={enrollmentDetails.checkout_session_id} />
+          <input type="hidden" name="status" value="Payment Completed" />
+        </form>
+      )}
     </div>
   );
 };
