@@ -4,6 +4,7 @@ import { createCheckoutSession } from './stripe';
 export interface EnrollmentData {
   parentName: string;
   email: string;
+  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;
@@ -19,7 +20,7 @@ export async function createEnrollment(
   checkoutSessionId: string = 'pending'
 ) {
   // Validate required fields
-  if (!data.parentName || !data.email || !data.childName || !data.childAge || !data.childSchool || !data.program) {
+  if (!data.parentName || !data.email || !data.mobile || !data.childName || !data.childAge || !data.childSchool || !data.program) {
     throw new Error('Missing required enrollment information');
   }
 
@@ -30,6 +31,7 @@ export async function createEnrollment(
         user_id: userId,
         parent_name: data.parentName,
         email: data.email,
+        mobile: data.mobile,
         child_name: data.childName,
         child_age: data.childAge,
         child_school: data.childSchool,
@@ -56,6 +58,7 @@ export async function submitToNetlify(enrollmentData: EnrollmentData, programNam
     formData.append('form-name', 'enrollment');
     formData.append('parentName', enrollmentData.parentName);
     formData.append('email', enrollmentData.email);
+    formData.append('mobile', enrollmentData.mobile);
     formData.append('childName', enrollmentData.childName);
     formData.append('childAge', enrollmentData.childAge);
     formData.append('childSchool', enrollmentData.childSchool);

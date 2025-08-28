@@ -13,6 +13,7 @@ import { User, Baby, School, Heart, Camera, Car, CheckCircle2, AlertCircle } fro
 interface FormData {
   parentName: string;
   email: string;
+  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;
@@ -34,6 +35,7 @@ const EnrolNow: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     parentName: '',
     email: session?.user?.email || '',
+    mobile: '',
     childName: '',
     childAge: '',
     childSchool: '',
@@ -59,7 +61,7 @@ const EnrolNow: React.FC = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(formData.parentName && formData.email && formData.childName && formData.childAge && formData.childSchool);
+        return !!(formData.parentName && formData.email && formData.mobile && formData.childName && formData.childAge && formData.childSchool);
       case 2:
         return !!formData.program;
       case 3:
@@ -287,6 +289,21 @@ const EnrolNow: React.FC = () => {
 
                       <div>
                         <label className="block font-nunito font-medium text-navy mb-2">
+                          Mobile Number *
+                        </label>
+                        <input
+                          type="tel"
+                          name="mobile"
+                          value={formData.mobile}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-electric-blue focus:border-electric-blue transition-colors"
+                          placeholder="0400 000 000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-nunito font-medium text-navy mb-2">
                           Child's Name *
                         </label>
                         <input
@@ -484,6 +501,10 @@ const EnrolNow: React.FC = () => {
                         <div>
                           <span className="font-nunito font-medium text-gray-600">Email:</span>
                           <p className="font-nunito text-navy">{formData.email}</p>
+                        </div>
+                        <div>
+                          <span className="font-nunito font-medium text-gray-600">Mobile:</span>
+                          <p className="font-nunito text-navy">{formData.mobile}</p>
                         </div>
                         <div>
                           <span className="font-nunito font-medium text-gray-600">Child:</span>

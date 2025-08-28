@@ -58,6 +58,7 @@ const Success: React.FC = () => {
               await submitToNetlify({
                 parentName: enrollment.parent_name,
                 email: enrollment.email,
+                mobile: enrollment.mobile || '',
                 childName: enrollment.child_name,
                 childAge: enrollment.child_age,
                 childSchool: enrollment.child_school,
