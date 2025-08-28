@@ -58,7 +58,7 @@ export async function getEnrollmentBySessionId(sessionId: string) {
     .from('user_enrollments')
     .select('*')
     .eq('checkout_session_id', sessionId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error('Failed to fetch enrollment:', error);
