@@ -38,30 +38,6 @@ export function useSchools() {
     }
   };
 
-  const addSchool = async (name: string, suburb?: string, postcode?: string) => {
-    try {
-      const { error } = await supabase
-        .from('schools')
-        .insert([{
-          name: name.trim(),
-          suburb: suburb?.trim() || null,
-          postcode: postcode?.trim() || null,
-          active: true
-        }]);
-
-      if (error) {
-        throw error;
-      }
-
-      // Refresh the schools list
-      await fetchSchools();
-      return true;
-    } catch (err) {
-      console.error('Error adding school:', err);
-      throw err;
-    }
-  };
-
   useEffect(() => {
     fetchSchools();
   }, []);
@@ -70,7 +46,6 @@ export function useSchools() {
     schools,
     loading,
     error,
-    addSchool,
     refetch: fetchSchools
   };
 }
