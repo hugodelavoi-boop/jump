@@ -83,7 +83,7 @@ const Success: React.FC = () => {
               child_name: parsed.childName,
               parent_name: parsed.parentName,
               email: parsed.email,
-              mobile: parsed.mobile || '',
+              mobile: parsed.mobile || 'Not provided',
               child_age: parsed.childAge,
               child_school: parsed.childSchool,
               medical_info: parsed.medicalInfo || '',
@@ -330,7 +330,7 @@ const Success: React.FC = () => {
           <input type="hidden" name="form-name" value="enrollment" />
           <input type="hidden" name="parentName" value={enrollmentDetails.parent_name} />
           <input type="hidden" name="email" value={enrollmentDetails.email} />
-          <input type="hidden" name="mobile" value={enrollmentDetails.mobile} />
+          <input type="hidden" name="mobile" value={enrollmentDetails.mobile || 'Not provided'} />
           <input type="hidden" name="childName" value={enrollmentDetails.child_name} />
           <input type="hidden" name="childAge" value={enrollmentDetails.child_age} />
           <input type="hidden" name="childSchool" value={enrollmentDetails.child_school} />
