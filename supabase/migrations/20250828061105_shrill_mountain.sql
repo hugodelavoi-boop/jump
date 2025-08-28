@@ -48,24 +48,4 @@ CREATE POLICY "Authenticated users can suggest schools"
 
 -- Insert common Perth primary schools
 INSERT INTO schools (name, suburb, postcode) VALUES
-  ('Subiaco Primary School', 'Subiaco', '6008'),
-  ('Leederville Primary School', 'Leederville', '6007'),
-  ('Mount Hawthorn Primary School', 'Mount Hawthorn', '6016'),
-  ('North Perth Primary School', 'North Perth', '6006'),
-  ('West Leederville Primary School', 'West Leederville', '6007'),
-  ('Churchlands Primary School', 'Churchlands', '6018'),
-  ('Floreat Park Primary School', 'Floreat', '6014'),
-  ('Wembley Primary School', 'Wembley', '6014'),
-  ('City Beach Primary School', 'City Beach', '6015'),
-  ('Scarborough Primary School', 'Scarborough', '6019'),
-  ('Doubleview Primary School', 'Doubleview', '6018'),
-  ('Woodlands Primary School', 'Woodlands', '6018'),
-  ('Yokine Primary School', 'Yokine', '6060'),
-  ('Nollamara Primary School', 'Nollamara', '6061'),
-  ('Balcatta Primary School', 'Balcatta', '6021'),
-  ('Mirrabooka Primary School', 'Mirrabooka', '6061'),
-  ('Warwick Primary School', 'Warwick', '6024'),
-  ('Dianella Primary School', 'Dianella', '6059'),
-  ('Morley Primary School', 'Morley', '6062'),
-  ('Inglewood Primary School', 'Inglewood', '6052')
 ON CONFLICT (name) DO NOTHING;
