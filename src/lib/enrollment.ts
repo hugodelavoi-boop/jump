@@ -52,38 +52,6 @@ export async function createEnrollment(
   return true;
 }
 
-export async function submitToNetlify(enrollmentData: EnrollmentData, programName: string) {
-  try {
-    const formData = new FormData();
-    formData.append('form-name', 'enrollment');
-    formData.append('parentName', enrollmentData.parentName);
-    formData.append('email', enrollmentData.email);
-    formData.append('mobile', enrollmentData.mobile);
-    formData.append('childName', enrollmentData.childName);
-    formData.append('childAge', enrollmentData.childAge);
-    formData.append('childSchool', enrollmentData.childSchool);
-    formData.append('medicalInfo', enrollmentData.medicalInfo || 'None provided');
-    formData.append('programName', programName);
-    formData.append('requiresPickup', enrollmentData.requiresPickup ? 'Yes' : 'No');
-    formData.append('photoPermission', enrollmentData.photoPermission ? 'Yes' : 'No');
-    formData.append('submissionDate', new Date().toISOString());
-
-    const response = await fetch('/', {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to submit to Netlify');
-    }
-
-    console.log('Successfully submitted enrollment to Netlify');
-    return true;
-  } catch (error) {
-    console.error('Error submitting to Netlify:', error);
-    throw error;
-  }
-}
 export async function getEnrollmentBySessionId(sessionId: string) {
   const { data, error } = await supabase
     .from('user_enrollments')
