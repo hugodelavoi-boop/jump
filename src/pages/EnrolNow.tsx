@@ -146,6 +146,14 @@ const EnrolNow: React.FC = () => {
       console.log('Enrollment created successfully');
       setSuccess(true);
 
+      // Store enrollment data in localStorage for the success page
+      const enrollmentForStorage = {
+        ...formData,
+        sessionId: sessionId
+      };
+      localStorage.setItem('pendingEnrollment', JSON.stringify(enrollmentForStorage));
+      console.log('📦 Stored enrollment data in localStorage');
+
       // Redirect to checkout
       setTimeout(() => {
         window.location.href = checkoutUrl;
