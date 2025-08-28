@@ -10,6 +10,7 @@ interface EnrollmentDetails {
   child_name: string;
   parent_name: string;
   email: string;
+  mobile: string;
   child_age: string;
   child_school: string;
   medical_info: string;
