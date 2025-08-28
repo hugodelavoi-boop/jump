@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import AuthWrapper from '../components/AuthWrapper';
 import ConsentWaiver from '../components/ConsentWaiver';
+import SchoolSelector from '../components/SchoolSelector';
 import { useProducts } from '../contexts/ProductContext';
 import { createEnrollment } from '../lib/enrollment';
 import { createCheckoutSession } from '../lib/stripe';
@@ -322,14 +323,10 @@ const EnrolNow: React.FC = () => {
                       <label className="block font-nunito font-medium text-navy mb-2">
                         Child's School *
                       </label>
-                      <input
-                        type="text"
-                        name="childSchool"
+                      <SchoolSelector
                         value={formData.childSchool}
-                        onChange={handleInputChange}
+                        onChange={(value) => setFormData(prev => ({ ...prev, childSchool: value }))}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-electric-blue focus:border-electric-blue transition-colors"
-                        placeholder="School name"
                       />
                     </div>
 
