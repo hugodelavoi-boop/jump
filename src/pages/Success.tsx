@@ -2,12 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import Button from '../components/Button';
-import { getEnrollmentBySessionId, createEnrollment } from '../lib/enrollment';
+import { getEnrollmentBySessionId, submitToNetlify } from '../lib/enrollment';
 import { useAuth } from '../hooks/useAuth';
+import { useProducts } from '../contexts/ProductContext';
 
 interface EnrollmentDetails {
   program_name: string;
   child_name: string;
+  parent_name: string;
+  email: string;
+  child_age: string;
+  child_school: string;
+  medical_info: string;
+  requires_pickup: boolean;
+  photo_permission: boolean;
 }
 
 const Success: React.FC = () => {
@@ -15,7 +23,9 @@ const Success: React.FC = () => {
   const navigate = useNavigate();
   const [enrollmentDetails, setEnrollmentDetails] = useState<EnrollmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [netlifySubmitted, setNetlifySubmitted] = useState(false);
   const { session } = useAuth();
+  const { products } = useProducts();
 
   useEffect(() => {
     const fetchEnrollmentDetails = async () => {
@@ -26,23 +36,57 @@ const Success: React.FC = () => {
           // Show generic success if no session ID
           setEnrollmentDetails({
             program_name: 'Selected Program',
-            child_name: 'Your child'
+            child_name: 'Your child',
+            parent_name: '',
+            email: '',
+            child_age: '',
+            child_school: '',
+            medical_info: '',
+            requires_pickup: false,
+            photo_permission: false
           });
           return;
         }
 
         try {
           const enrollment = await getEnrollmentBySessionId(sessionId);
-          setEnrollmentDetails({
-            program_name: enrollment.program_name,
-            child_name: enrollment.child_name
-          });
+          setEnrollmentDetails(enrollment);
+          
+          // Submit to Netlify after successful payment
+          if (!netlifySubmitted) {
+            try {
+              await submitToNetlify({
+                parentName: enrollment.parent_name,
+                email: enrollment.email,
+                childName: enrollment.child_name,
+                childAge: enrollment.child_age,
+                childSchool: enrollment.child_school,
+                medicalInfo: enrollment.medical_info || '',
+                program: '', // We'll use program_name instead
+                requiresPickup: enrollment.requires_pickup,
+                photoPermission: enrollment.photo_permission,
+              }, enrollment.program_name);
+              
+              setNetlifySubmitted(true);
+              console.log('Successfully submitted enrollment to Netlify');
+            } catch (netlifyError) {
+              console.error('Failed to submit to Netlify:', netlifyError);
+              // Don't show error to user as payment was successful
+            }
+          }
         } catch (error) {
           console.error('Error fetching enrollment:', error);
           // Fallback to generic success message
           setEnrollmentDetails({
             program_name: 'Selected Program',
-            child_name: 'Your child'
+            child_name: 'Your child',
+            parent_name: '',
+            email: '',
+            child_age: '',
+            child_school: '',
+            medical_info: '',
+            requires_pickup: false,
+            photo_permission: false
           });
         }
       } catch (error) {
@@ -50,7 +94,14 @@ const Success: React.FC = () => {
         // Show generic success message even if database lookup fails
         setEnrollmentDetails({
           program_name: 'Selected Program',
-          child_name: 'Your child'
+          child_name: 'Your child',
+          parent_name: '',
+          email: '',
+          child_age: '',
+          child_school: '',
+          medical_info: '',
+          requires_pickup: false,
+          photo_permission: false
         });
       } finally {
         setLoading(false);
@@ -58,7 +109,7 @@ const Success: React.FC = () => {
     };
 
     fetchEnrollmentDetails();
-  }, [searchParams, session]);
+  }, [searchParams, session, netlifySubmitted]);
 
   if (loading) {
     return (
@@ -84,6 +135,13 @@ const Success: React.FC = () => {
           </p>
         )}
 
+        {netlifySubmitted && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="font-nunito text-green-700 text-sm">
+              ✓ Enrollment details have been submitted to our team
+            </p>
+          </div>
+        )}
         <div className="space-y-4">
           <Button
             variant="primary"
