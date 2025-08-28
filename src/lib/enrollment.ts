@@ -5,6 +5,7 @@ export interface EnrollmentData {
   parentName: string;
   email: string;
   mobile: string;
+  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;
@@ -31,6 +32,7 @@ export async function createEnrollment(
         user_id: userId,
         parent_name: data.parentName,
         email: data.email,
+        mobile: data.mobile,
         child_name: data.childName,
         child_age: data.childAge,
         child_school: data.childSchool,

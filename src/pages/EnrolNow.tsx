@@ -133,6 +133,7 @@ const EnrolNow: React.FC = () => {
         parentName: formData.parentName,
         email: formData.email,
         mobile: formData.mobile,
+        mobile: formData.mobile,
         childName: formData.childName,
         childAge: formData.childAge,
         childSchool: formData.childSchool,

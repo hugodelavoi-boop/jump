@@ -42,6 +42,7 @@ const Success: React.FC = () => {
       formData.append('parentName', enrollmentData.parent_name || '');
       formData.append('email', enrollmentData.email || '');
       formData.append('mobile', mobile);
+      formData.append('mobile', mobile);
       formData.append('childName', enrollmentData.child_name || '');
       formData.append('childAge', enrollmentData.child_age || '');
       formData.append('childSchool', enrollmentData.child_school || '');
