@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useProducts } from '../contexts/ProductContext';
-import { createEnrollmentCheckout, createEnrollment } from '../lib/enrollment';
+import { createCheckoutSession } from '../lib/stripe';
 import { useAuth } from '../hooks/useAuth';
 import AuthWrapper from '../components/AuthWrapper';
 import ConsentWaiver from '../components/ConsentWaiver';
