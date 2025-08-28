@@ -6,7 +6,7 @@ interface Product {
   price_id: string;
   name: string;
   description: string | null;
-  mode: 'payment' | 'subscription';
+  mode: string | null;
 }
 
 interface ProductContextType {
