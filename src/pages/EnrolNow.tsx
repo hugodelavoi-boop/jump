@@ -70,27 +70,45 @@ const EnrolNow: React.FC = () => {
     setError(null);
 
     try {
+      console.log('Starting enrollment process...');
+      console.log('Form data:', formData);
+      console.log('User ID:', session.user.id);
+      
       if (!formData.program) {
         throw new Error('Please select a program');
       }
 
-      // Create enrollment record first
-      await createEnrollment(formData, session.user.id, 'pending');
+      // Get the selected product details
+      const selectedProduct = products.find(p => p.price_id === formData.program);
+      if (!selectedProduct) {
+        throw new Error('Selected program not found');
+      }
+      
+      console.log('Selected product:', selectedProduct);
 
-      // Create dynamic checkout session
-      const checkoutUrl = await createEnrollmentCheckout(
-        formData,
-        session.user.id,
-        session.access_token
+      // Create checkout session first
+      const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${window.location.origin}/enrol`;
+      
+      console.log('Creating checkout session...');
+      const checkoutUrl = await createCheckoutSession(
+        formData.program,
+        selectedProduct.mode as 'payment' | 'subscription',
+        session.access_token,
+        successUrl,
+        cancelUrl
       );
+      
+      console.log('Checkout URL created:', checkoutUrl);
 
       // Redirect to Stripe checkout
       window.location.href = checkoutUrl;
-      
-      // Show success message
-      setSuccess(true);
     } catch (err) {
-      console.error('Enrollment error:', err);
+      console.error('Enrollment error details:', err);
+      if (err instanceof Error) {
+        console.error('Error message:', err.message);
+        console.error('Error stack:', err.stack);
+      }
       setError(err instanceof Error ? err.message : 'Failed to process enrollment. Please try again.');
       setIsSubmitting(false);
     }

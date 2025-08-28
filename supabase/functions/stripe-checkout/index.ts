@@ -31,6 +31,9 @@ function corsResponse(body: string | object | null, status = 200) {
 
 Deno.serve(async (req) => {
   try {
+    console.log('Stripe checkout function called');
+    console.log('Request method:', req.method);
+    
     if (req.method === 'OPTIONS') {
       return corsResponse({}, 204);
     }
@@ -39,15 +42,30 @@ Deno.serve(async (req) => {
       return corsResponse({ error: 'Method not allowed' }, 405);
     }
 
-    const { price_id, success_url, cancel_url, mode } = await req.json();
+    const requestBody = await req.text();
+    console.log('Request body:', requestBody);
+    
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(requestBody);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return corsResponse({ error: 'Invalid JSON in request body' }, 400);
+    }
+    
+    const { price_id, success_url, cancel_url, mode } = parsedBody;
+    console.log('Parsed parameters:', { price_id, success_url, cancel_url, mode });
     
     // Get user from JWT token
     const authHeader = req.headers.get('Authorization');
+    console.log('Auth header present:', !!authHeader);
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid authorization header');
       return corsResponse({ error: 'Authorization required' }, 401);
     }
 
-    const error = validateParameters(
+    const validationError = validateParameters(
       { price_id, success_url, cancel_url, mode },
       {
         cancel_url: 'string',
@@ -57,8 +75,9 @@ Deno.serve(async (req) => {
       },
     );
 
-    if (error) {
-      return corsResponse({ error }, 400);
+    if (validationError) {
+      console.error('Validation error:', validationError);
+      return corsResponse({ error: validationError }, 400);
     }
 
     // Parse JWT to get user info (simplified - in production use proper JWT validation)
@@ -70,9 +89,14 @@ Deno.serve(async (req) => {
       // In production, you should properly validate the JWT
       const payload = JSON.parse(atob(token.split('.')[1]));
       userEmail = payload.email;
+      console.log('User email from token:', userEmail);
     } catch (e) {
+      console.error('Token parsing error:', e);
       return corsResponse({ error: 'Invalid token' }, 401);
     }
+    
+    console.log('Creating Stripe checkout session...');
+    
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -88,9 +112,12 @@ Deno.serve(async (req) => {
       customer_email: userEmail,
     });
 
+    console.log('Stripe session created successfully:', session.id);
     return corsResponse({ sessionId: session.id, url: session.url });
   } catch (error: any) {
-    console.error(`Checkout error: ${error.message}`);
+    console.error('Checkout function error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     return corsResponse({ error: error.message }, 500);
   }
 });

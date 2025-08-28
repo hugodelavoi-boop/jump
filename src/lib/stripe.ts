@@ -6,6 +6,8 @@ export async function createCheckoutSession(
   cancelUrl: string,
 ) {
   console.log('Creating checkout session with:', { priceId, mode, successUrl, cancelUrl });
+  console.log('Access token available:', !!accessToken);
+  console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
   
   const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
     method: 'POST',
@@ -22,9 +24,19 @@ export async function createCheckoutSession(
   });
 
   console.log('Checkout response status:', response.status);
+  console.log('Checkout response headers:', Object.fromEntries(response.headers.entries()));
   
   if (!response.ok) {
-    const error = await response.json();
+    const errorText = await response.text();
+    console.error('Checkout error response text:', errorText);
+    
+    let error;
+    try {
+      error = JSON.parse(errorText);
+    } catch {
+      error = { error: errorText };
+    }
+    
     console.error('Checkout error response:', error);
     throw new Error(error.error || 'Failed to create checkout session');
   }
