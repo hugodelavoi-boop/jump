@@ -28,21 +28,19 @@ const Success: React.FC = () => {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const { session } = useAuth();
 
-  const submitToNetlify = async (enrollmentData: EnrollmentDetails, mobile: string = '') => {
+  const submitToNetlify = async (enrollmentData: EnrollmentDetails) => {
     try {
       console.log('=== NETLIFY SUBMISSION START ===');
       console.log('Enrollment data:', enrollmentData);
-      console.log('Mobile number:', mobile);
       
       // Create form data exactly as Netlify expects
       const formData = new FormData();
       formData.append('form-name', 'enrollment');
       
-      // Add all form fields
+      // Add all form fields - make sure these match the hidden form in forms.html
       formData.append('parentName', enrollmentData.parent_name || '');
       formData.append('email', enrollmentData.email || '');
-      formData.append('mobile', mobile);
-      formData.append('mobile', mobile);
+      formData.append('mobile', enrollmentData.mobile || '');
       formData.append('childName', enrollmentData.child_name || '');
       formData.append('childAge', enrollmentData.child_age || '');
       formData.append('childSchool', enrollmentData.child_school || '');
@@ -59,7 +57,7 @@ const Success: React.FC = () => {
         console.log(`${key}: ${value}`);
       }
 
-      // Submit to Netlify
+      // Submit to Netlify - use the current domain
       const response = await fetch('/', {
         method: 'POST',
         body: formData
@@ -94,12 +92,13 @@ const Success: React.FC = () => {
         console.log('Stripe session ID from URL:', sessionId);
         
         if (!sessionId) {
-          console.log('No session ID found in URL');
+          console.log('No session ID found in URL - this might be a direct visit');
           setEnrollmentDetails({
             program_name: 'Selected Program',
             child_name: 'Your child',
             parent_name: '',
             email: '',
+            mobile: '',
             child_age: '',
             child_school: '',
             medical_info: '',
@@ -118,37 +117,32 @@ const Success: React.FC = () => {
           console.log('Fetched enrollment details:', enrollment);
           setEnrollmentDetails(enrollment);
           
-          // Submit to Netlify after successful payment
+          // CRITICAL: Submit to Netlify immediately after successful payment
+          console.log('=== TRIGGERING NETLIFY SUBMISSION ===');
+          console.log('Form submitted flag:', formSubmitted);
+          
           if (!formSubmitted) {
             console.log('Attempting Netlify submission...');
             try {
-              // Get mobile from form data stored in localStorage if available
-              const storedFormData = localStorage.getItem('enrollmentFormData');
-              let mobile = '';
-              if (storedFormData) {
-                const parsedData = JSON.parse(storedFormData);
-                mobile = parsedData.mobile || '';
-                console.log('Retrieved mobile from localStorage:', mobile);
-              }
-              
-              await submitToNetlify(enrollment, mobile);
+              await submitToNetlify(enrollment);
               setFormSubmitted(true);
-              console.log('Form submitted to Netlify successfully');
-              
-              // Clear stored form data
-              localStorage.removeItem('enrollmentFormData');
+              console.log('✅ Form submitted to Netlify successfully');
             } catch (netlifyError) {
-              console.error('Failed to submit to Netlify:', netlifyError);
+              console.error('❌ Failed to submit to Netlify:', netlifyError);
               setSubmissionError(netlifyError instanceof Error ? netlifyError.message : 'Failed to submit form');
             }
+          } else {
+            console.log('Form already submitted, skipping...');
           }
         } catch (error) {
           console.error('Error fetching enrollment:', error);
+          // Create fallback data if enrollment fetch fails
           setEnrollmentDetails({
             program_name: 'Selected Program',
             child_name: 'Your child',
             parent_name: '',
             email: '',
+            mobile: '',
             child_age: '',
             child_school: '',
             medical_info: '',
@@ -164,6 +158,7 @@ const Success: React.FC = () => {
           child_name: 'Your child',
           parent_name: '',
           email: '',
+          mobile: '',
           child_age: '',
           child_school: '',
           medical_info: '',
@@ -177,12 +172,31 @@ const Success: React.FC = () => {
     };
 
     fetchEnrollmentDetails();
-  }, [searchParams, formSubmitted]);
+  }, [searchParams]); // Removed formSubmitted from dependencies to prevent infinite loops
+
+  // Manual retry function for testing
+  const retryNetlifySubmission = async () => {
+    if (!enrollmentDetails) return;
+    
+    setSubmissionError(null);
+    try {
+      console.log('=== MANUAL RETRY NETLIFY SUBMISSION ===');
+      await submitToNetlify(enrollmentDetails);
+      setFormSubmitted(true);
+      console.log('✅ Manual retry successful');
+    } catch (error) {
+      console.error('❌ Manual retry failed:', error);
+      setSubmissionError(error instanceof Error ? error.message : 'Failed to submit form');
+    }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
+          <p className="font-nunito text-gray-600">Processing your enrollment...</p>
+        </div>
       </div>
     );
   }
@@ -203,25 +217,45 @@ const Success: React.FC = () => {
           </p>
         )}
 
-        {formSubmitted && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="font-nunito text-green-700 text-sm">
-              ✓ Enrollment details have been submitted to our team for processing
-            </p>
-          </div>
-        )}
+        {/* Form Submission Status */}
+        <div className="mb-6 space-y-3">
+          {formSubmitted ? (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="font-nunito text-green-700 text-sm font-medium">
+                ✅ Enrollment details successfully sent to our team
+              </p>
+            </div>
+          ) : (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="font-nunito text-yellow-800 text-sm font-medium mb-2">
+                ⏳ Sending enrollment details to our team...
+              </p>
+              {submissionError && (
+                <div className="mt-2">
+                  <p className="font-nunito text-red-700 text-xs mb-2">
+                    Error: {submissionError}
+                  </p>
+                  <button
+                    onClick={retryNetlifySubmission}
+                    className="text-xs bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700 transition-colors"
+                  >
+                    Retry Submission
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-        {submissionError && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-            <div className="text-left">
-              <p className="font-nunito text-yellow-800 text-sm font-medium mb-1">
-                Form submission issue
-              </p>
-              <p className="font-nunito text-yellow-700 text-xs">
-                Your payment was successful, but we had trouble sending the form to our team. 
-                Please contact us at hello@jumpstartsports.com.au with your enrollment details.
-              </p>
+        {/* Debug Information (only in development) */}
+        {import.meta.env.DEV && (
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-left">
+            <h3 className="font-nunito font-semibold text-sm text-gray-700 mb-2">Debug Info:</h3>
+            <div className="font-mono text-xs text-gray-600 space-y-1">
+              <p>Session ID: {searchParams.get('session_id') || 'None'}</p>
+              <p>Form Submitted: {formSubmitted ? 'Yes' : 'No'}</p>
+              <p>Has Enrollment Data: {enrollmentDetails ? 'Yes' : 'No'}</p>
+              <p>Mobile: {enrollmentDetails?.mobile || 'Not found'}</p>
             </div>
           </div>
         )}
