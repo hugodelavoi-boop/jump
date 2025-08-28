@@ -104,23 +104,6 @@ const EnrolNow: React.FC = () => {
     setError(null);
 
     try {
-      // Create enrollment record
-      console.log('Creating enrollment record...');
-      await createEnrollment({
-        parentName: formData.parentName,
-        email: formData.email,
-        childName: formData.childName,
-        childAge: formData.childAge,
-        childSchool: formData.childSchool,
-        medicalInfo: formData.medicalInfo,
-        program: formData.program,
-        requiresPickup: formData.requiresPickup,
-        photoPermission: formData.photoPermission,
-      }, session.user.id);
-
-      console.log('Enrollment created successfully');
-      setSuccess(true);
-
       // Find the selected product to get the mode
       const selectedProduct = products.find(p => p.price_id === formData.program);
       const mode = selectedProduct?.mode === 'subscription' ? 'subscription' : 'payment';
@@ -133,7 +116,7 @@ const EnrolNow: React.FC = () => {
       const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/enrol`;
 
-      const checkoutUrl = await createCheckoutSession(
+      const { url: checkoutUrl, sessionId } = await createCheckoutSession(
         formData.program,
         mode,
         session.access_token,
@@ -142,6 +125,25 @@ const EnrolNow: React.FC = () => {
       );
 
       console.log('Checkout URL created:', checkoutUrl);
+      console.log('Session ID:', sessionId);
+
+      // Create enrollment record with the actual session ID
+      console.log('Creating enrollment record...');
+      await createEnrollment({
+        parentName: formData.parentName,
+        email: formData.email,
+        mobile: formData.mobile,
+        childName: formData.childName,
+        childAge: formData.childAge,
+        childSchool: formData.childSchool,
+        medicalInfo: formData.medicalInfo,
+        program: formData.program,
+        requiresPickup: formData.requiresPickup,
+        photoPermission: formData.photoPermission,
+      }, session.user.id, sessionId);
+
+      console.log('Enrollment created successfully');
+      setSuccess(true);
 
       // Redirect to checkout
       setTimeout(() => {

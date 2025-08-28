@@ -50,7 +50,12 @@ export async function createCheckoutSession(
 
   const { url } = await response.json();
   console.log('Checkout URL created:', url);
-  return url;
+  
+  // Extract session ID from the URL
+  const urlObj = new URL(url);
+  const sessionId = urlObj.searchParams.get('session_id') || url.split('/').pop();
+  
+  return { url, sessionId };
 }
 
 export function getProductByPriceId(priceId: string) {
