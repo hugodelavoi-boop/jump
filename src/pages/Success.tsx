@@ -31,23 +31,26 @@ const Success: React.FC = () => {
     try {
       console.log('Submitting to Netlify:', enrollmentData);
       
-      const formData = new FormData();
-      formData.append('form-name', 'enrollment');
-      formData.append('parentName', enrollmentData.parent_name || '');
-      formData.append('email', enrollmentData.email || '');
-      formData.append('mobile', enrollmentData.mobile || '');
-      formData.append('childName', enrollmentData.child_name || '');
-      formData.append('childAge', enrollmentData.child_age || '');
-      formData.append('childSchool', enrollmentData.child_school || '');
-      formData.append('medicalInfo', enrollmentData.medical_info || 'None provided');
-      formData.append('programName', enrollmentData.program_name || 'Unknown Program');
-      formData.append('requiresPickup', enrollmentData.requires_pickup ? 'Yes' : 'No');
-      formData.append('photoPermission', enrollmentData.photo_permission ? 'Yes' : 'No');
-      formData.append('submissionDate', new Date().toISOString());
+      // Use URLSearchParams for better Netlify compatibility
+      const params = new URLSearchParams();
+      params.append('form-name', 'enrollment');
+      params.append('parentName', enrollmentData.parent_name || '');
+      params.append('email', enrollmentData.email || '');
+      params.append('childName', enrollmentData.child_name || '');
+      params.append('childAge', enrollmentData.child_age || '');
+      params.append('childSchool', enrollmentData.child_school || '');
+      params.append('medicalInfo', enrollmentData.medical_info || 'None provided');
+      params.append('programName', enrollmentData.program_name || 'Unknown Program');
+      params.append('requiresPickup', enrollmentData.requires_pickup ? 'Yes' : 'No');
+      params.append('photoPermission', enrollmentData.photo_permission ? 'Yes' : 'No');
+      params.append('submissionDate', new Date().toLocaleString());
 
       const response = await fetch('/', {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString()
       });
 
       if (!response.ok) {
@@ -56,7 +59,7 @@ const Success: React.FC = () => {
         throw new Error(`Netlify submission failed: ${response.status}`);
       }
 
-      console.log('Successfully submitted to Netlify');
+      console.log('Successfully submitted to Netlify:', response.status);
       return true;
     } catch (error) {
       console.error('Error submitting to Netlify:', error);
@@ -92,6 +95,7 @@ const Success: React.FC = () => {
           
           // Submit to Netlify after successful payment  
           if (!formSubmitted) {
+                console.log('Attempting Netlify submission...');
             try {
               await submitToNetlify(enrollment);
               
