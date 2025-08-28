@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useProducts } from '../contexts/ProductContext';
-import { createEnrollmentCheckout } from '../lib/enrollment';
+import { createEnrollmentCheckout, createEnrollment } from '../lib/enrollment';
 import { useAuth } from '../hooks/useAuth';
 import AuthWrapper from '../components/AuthWrapper';
 import ConsentWaiver from '../components/ConsentWaiver';
@@ -38,6 +38,7 @@ const EnrolNow: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const { products, loading: productsLoading } = useProducts();
   const { session } = useAuth();
@@ -59,6 +60,11 @@ const EnrolNow: React.FC = () => {
       setError('Please sign in to continue with enrollment');
       return;
     }
+
+    if (!formData.termsAccepted) {
+      setError('Please accept the terms and conditions to continue');
+      return;
+    }
     
     setIsSubmitting(true);
     setError(null);
@@ -68,11 +74,8 @@ const EnrolNow: React.FC = () => {
         throw new Error('Please select a program');
       }
 
-      // Store form data in session storage for post-payment processing
-      sessionStorage.setItem('enrollmentData', JSON.stringify({
-        ...formData,
-        userId: session.user.id
-      }));
+      // Create enrollment record first
+      await createEnrollment(formData, session.user.id, 'pending');
 
       // Create dynamic checkout session
       const checkoutUrl = await createEnrollmentCheckout(
@@ -83,6 +86,9 @@ const EnrolNow: React.FC = () => {
 
       // Redirect to Stripe checkout
       window.location.href = checkoutUrl;
+      
+      // Show success message
+      setSuccess(true);
     } catch (err) {
       console.error('Enrollment error:', err);
       setError(err instanceof Error ? err.message : 'Failed to process enrollment. Please try again.');
@@ -135,6 +141,13 @@ const EnrolNow: React.FC = () => {
                 <div className="mb-8 p-4 bg-red-50 rounded-lg flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <p className="font-nunito text-red-700">{error}</p>
+                </div>
+              )}
+
+              {success && (
+                <div className="mb-8 p-4 bg-green-50 rounded-lg flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p className="font-nunito text-green-700">Enrollment submitted successfully! Redirecting to payment...</p>
                 </div>
               )}
 

@@ -16,7 +16,7 @@ export interface EnrollmentData {
 export async function createEnrollment(
   data: EnrollmentData, 
   userId: string,
-  checkoutSessionId: string
+  checkoutSessionId: string = 'pending'
 ) {
   // Validate required fields
   if (!data.parentName || !data.email || !data.childName || !data.childAge || !data.childSchool || !data.program) {
@@ -46,6 +46,8 @@ export async function createEnrollment(
     console.error('Failed to create enrollment:', error);
     throw new Error('Failed to create enrollment');
   }
+
+  return true;
 }
 
 export async function getEnrollmentBySessionId(sessionId: string) {
@@ -77,6 +79,7 @@ export async function createEnrollmentCheckout(
       .single();
 
     if (productError) {
+      console.error('Product fetch error:', productError);
       throw new Error('Failed to fetch program details');
     }
 

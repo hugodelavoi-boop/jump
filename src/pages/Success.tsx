@@ -21,34 +21,13 @@ const Success: React.FC = () => {
     const fetchEnrollmentDetails = async () => {
       try {
         const sessionId = searchParams.get('session_id');
+        
         if (!sessionId) {
-          // Check if we have enrollment data in session storage
-          const storedData = sessionStorage.getItem('enrollmentData');
-          if (storedData && session) {
-            const enrollmentData = JSON.parse(storedData);
-            
-            try {
-              // Create the enrollment record
-              await createEnrollment(enrollmentData, session.user.id, sessionId || 'manual');
-              
-              setEnrollmentDetails({
-                program_name: enrollmentData.program || 'Selected Program',
-                child_name: enrollmentData.childName
-              });
-              
-              // Clear the stored data
-              sessionStorage.removeItem('enrollmentData');
-            } catch (error) {
-              console.error('Error creating enrollment:', error);
-              // Still show success but with generic message
-              setEnrollmentDetails({
-                program_name: 'Selected Program',
-                child_name: 'Your child'
-              });
-            }
-          } else {
-            throw new Error('No enrollment information found');
-          }
+          // Show generic success if no session ID
+          setEnrollmentDetails({
+            program_name: 'Selected Program',
+            child_name: 'Your child'
+          });
           return;
         }
 
@@ -78,9 +57,7 @@ const Success: React.FC = () => {
       }
     };
 
-    if (session) {
-      fetchEnrollmentDetails();
-    }
+    fetchEnrollmentDetails();
   }, [searchParams, session]);
 
   if (loading) {
