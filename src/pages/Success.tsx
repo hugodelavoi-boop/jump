@@ -83,7 +83,7 @@ const Success: React.FC = () => {
               child_name: parsed.childName,
               parent_name: parsed.parentName,
               email: parsed.email,
-              mobile: parsed.mobile,
+              mobile: parsed.mobile || '',
               child_age: parsed.childAge,
               child_school: parsed.childSchool,
               medical_info: parsed.medicalInfo || '',
@@ -97,21 +97,16 @@ const Success: React.FC = () => {
             const alreadySubmitted = localStorage.getItem(submittedKey);
             
             if (!alreadySubmitted) {
-              // Submit form after component renders
+              // Submit form immediately after state is set
+              setLoading(false);
+              // Use a shorter timeout to ensure DOM is ready
               setTimeout(() => {
-                const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
-                if (form) {
-                  console.log('📝 Submitting form to Netlify...');
-                  form.submit();
-                  localStorage.setItem(submittedKey, 'true');
-                  setFormSubmitted(true);
-                }
-              }, 1000);
+                submitFormToNetlify(sessionId);
+              }, 100);
             } else {
               setFormSubmitted(true);
+              setLoading(false);
             }
-            
-            setLoading(false);
             return;
           }
         }
@@ -131,13 +126,7 @@ const Success: React.FC = () => {
             
             if (!alreadySubmitted) {
               setTimeout(() => {
-                const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
-                if (form) {
-                  console.log('📝 Submitting form to Netlify...');
-                  form.submit();
-                  localStorage.setItem(submittedKey, 'true');
-                  setFormSubmitted(true);
-                }
+                submitFormToNetlify(sessionId);
               }, 1000);
             } else {
               setFormSubmitted(true);
@@ -188,16 +177,41 @@ const Success: React.FC = () => {
     fetchAndSubmit();
   }, [searchParams]);
 
-  const manualSubmit = () => {
-    const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
-    if (form && enrollmentDetails) {
-      console.log('🔄 Manual form submission triggered');
-      form.submit();
-      setFormSubmitted(true);
-      const sessionId = searchParams.get('session_id');
-      if (sessionId) {
+  const submitFormToNetlify = (sessionId: string) => {
+    try {
+      const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
+      if (form && enrollmentDetails) {
+        console.log('📝 Submitting form to Netlify with data:', {
+          parentName: enrollmentDetails.parent_name,
+          mobile: enrollmentDetails.mobile,
+          childName: enrollmentDetails.child_name,
+          program: enrollmentDetails.program_name
+        });
+        
+        // Ensure all form fields are populated
+        const formData = new FormData(form);
+        console.log('📋 Form data being submitted:', Object.fromEntries(formData.entries()));
+        
+        form.submit();
         localStorage.setItem(`netlify_submitted_${sessionId}`, 'true');
+        setFormSubmitted(true);
+        console.log('✅ Form submitted successfully');
+      } else {
+        console.error('❌ Form element not found or enrollment details missing');
+        setSubmissionError('Form submission failed - missing data');
       }
+    } catch (error) {
+      console.error('❌ Form submission error:', error);
+      setSubmissionError(error instanceof Error ? error.message : 'Form submission failed');
+    }
+  };
+  const manualSubmit = () => {
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      console.log('🔄 Manual form submission triggered');
+      submitFormToNetlify(sessionId);
+    } else {
+      setSubmissionError('No session ID available for submission');
     }
   };
 
