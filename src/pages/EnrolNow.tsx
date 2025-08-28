@@ -78,3 +78,4 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     </ProductContext.Provider>
   );
 };
+export default ProductProvider;
