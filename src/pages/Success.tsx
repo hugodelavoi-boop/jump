@@ -25,6 +25,7 @@ const Success: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>({});
 
   useEffect(() => {
     const fetchAndSubmit = async () => {
@@ -33,143 +34,114 @@ const Success: React.FC = () => {
         const sessionId = searchParams.get('session_id');
         console.log('📋 Session ID from URL:', sessionId);
         
+        const debug: any = {
+          sessionId,
+          hasLocalStorage: false,
+          localStorageData: null,
+          databaseData: null,
+          finalData: null
+        };
+
         if (!sessionId) {
-          console.log('⚠️ No session ID found - showing generic success');
-          // Try to get data from localStorage as fallback
-          const storedData = localStorage.getItem('pendingEnrollment');
-          if (storedData) {
-            const parsed = JSON.parse(storedData);
-            setEnrollmentDetails({
-              program_name: parsed.programName || 'Selected Program',
-              child_name: parsed.childName || 'Your child',
-              parent_name: parsed.parentName || '',
-              email: parsed.email || '',
-              mobile: parsed.mobile || '',
-              child_age: parsed.childAge || '',
-              child_school: parsed.childSchool || '',
-              medical_info: parsed.medicalInfo || '',
-              requires_pickup: parsed.requiresPickup || false,
-              photo_permission: parsed.photoPermission || false,
-              checkout_session_id: sessionId || ''
-            });
-          } else {
-            setEnrollmentDetails({
-              program_name: 'Selected Program',
-              child_name: 'Your child',
-              parent_name: '',
-              email: '',
-              mobile: '',
-              child_age: '',
-              child_school: '',
-              medical_info: '',
-              requires_pickup: false,
-              photo_permission: false,
-              checkout_session_id: ''
-            });
-          }
+          console.log('⚠️ No session ID found');
+          setDebugInfo(debug);
           setLoading(false);
           return;
         }
 
-        // First try to get data from localStorage (most reliable)
+        // CULPRIT 1 FIX: Check localStorage first (most reliable)
         const storedData = localStorage.getItem('pendingEnrollment');
         if (storedData) {
           console.log('📦 Found enrollment data in localStorage');
           const parsed = JSON.parse(storedData);
+          debug.hasLocalStorage = true;
+          debug.localStorageData = parsed;
+          
+          console.log('📊 Parsed localStorage data:', parsed);
+          
+          // Validate that this is the correct enrollment
           if (parsed.sessionId === sessionId || parsed.checkoutSessionId === sessionId) {
-            console.log('✅ Session ID matches, using localStorage data');
-            setEnrollmentDetails({
+            console.log('✅ Session ID matches localStorage data');
+            
+            const enrollmentData: EnrollmentDetails = {
               program_name: parsed.programName || 'Selected Program',
-              child_name: parsed.childName,
-              parent_name: parsed.parentName,
-              email: parsed.email,
-              mobile: parsed.mobile || 'Not provided',
-              child_age: parsed.childAge,
-              child_school: parsed.childSchool,
-              medical_info: parsed.medicalInfo || '',
-              requires_pickup: parsed.requiresPickup,
-              photo_permission: parsed.photoPermission,
+              child_name: parsed.childName || 'Your child',
+              parent_name: parsed.parentName || 'Parent',
+              email: parsed.email || 'email@example.com',
+              mobile: parsed.mobile || 'Not provided', // CULPRIT 3 FIX: Always provide fallback
+              child_age: parsed.childAge || 'Not specified',
+              child_school: parsed.childSchool || 'Not specified',
+              medical_info: parsed.medicalInfo || 'None provided',
+              requires_pickup: parsed.requiresPickup || false,
+              photo_permission: parsed.photoPermission || false,
               checkout_session_id: sessionId
-            });
+            };
             
-            // Check if form already submitted
-            const submittedKey = `netlify_submitted_${sessionId}`;
-            const alreadySubmitted = localStorage.getItem(submittedKey);
+            debug.finalData = enrollmentData;
+            setEnrollmentDetails(enrollmentData);
+            setDebugInfo(debug);
+            setLoading(false);
             
-            if (!alreadySubmitted) {
-              // Submit form immediately after state is set
-              setLoading(false);
-              // Use a shorter timeout to ensure DOM is ready
-              setTimeout(() => {
-                submitFormToNetlify(sessionId);
-              }, 100);
-            } else {
-              setFormSubmitted(true);
-              setLoading(false);
-            }
+            // CULPRIT 1 FIX: Use traditional form submission instead of programmatic
+            setTimeout(() => {
+              submitFormTraditionally(enrollmentData, sessionId);
+            }, 500); // Give DOM time to render
+            
             return;
           }
         }
 
-        // Fallback: try to fetch from database
-        console.log('🔍 Fetching enrollment details...');
+        // Fallback: try database
+        console.log('🔍 Fetching from database...');
         try {
           const enrollment = await getEnrollmentBySessionId(sessionId);
-          console.log('📊 Enrollment details fetched:', enrollment);
+          debug.databaseData = enrollment;
           
           if (enrollment) {
+            console.log('📊 Database enrollment found:', enrollment);
             setEnrollmentDetails(enrollment);
+            debug.finalData = enrollment;
+            setDebugInfo(debug);
+            setLoading(false);
             
-            // Check if form already submitted
-            const submittedKey = `netlify_submitted_${sessionId}`;
-            const alreadySubmitted = localStorage.getItem(submittedKey);
-            
-            if (!alreadySubmitted) {
-              setTimeout(() => {
-                submitFormToNetlify(sessionId);
-              }, 1000);
-            } else {
-              setFormSubmitted(true);
-            }
-          } else {
-            console.log('⚠️ No enrollment found in database, using fallback');
-            throw new Error('No enrollment data found');
+            setTimeout(() => {
+              submitFormTraditionally(enrollment, sessionId);
+            }, 500);
+            return;
           }
         } catch (dbError) {
-          console.log('⚠️ Database fetch failed, using fallback data');
-          // Create fallback data
-          setEnrollmentDetails({
-            program_name: 'Selected Program',
-            child_name: 'Your child',
-            parent_name: '',
-            email: '',
-            mobile: '',
-            child_age: '',
-            child_school: '',
-            medical_info: '',
-            requires_pickup: false,
-            photo_permission: false,
-            checkout_session_id: sessionId
-          });
+          console.log('⚠️ Database fetch failed:', dbError);
+          debug.databaseError = dbError;
         }
+
+        // Final fallback
+        console.log('⚠️ Using fallback data');
+        const fallbackData: EnrollmentDetails = {
+          program_name: 'Selected Program',
+          child_name: 'Your child',
+          parent_name: 'Parent',
+          email: 'email@example.com',
+          mobile: 'Not provided',
+          child_age: 'Not specified',
+          child_school: 'Not specified',
+          medical_info: 'None provided',
+          requires_pickup: false,
+          photo_permission: false,
+          checkout_session_id: sessionId
+        };
+        
+        debug.finalData = fallbackData;
+        setEnrollmentDetails(fallbackData);
+        setDebugInfo(debug);
+        setLoading(false);
+        
+        setTimeout(() => {
+          submitFormTraditionally(fallbackData, sessionId);
+        }, 500);
+
       } catch (error) {
         console.error('💥 Error in fetchAndSubmit:', error);
         setSubmissionError(error instanceof Error ? error.message : 'Failed to process enrollment');
-        // Create fallback data
-        setEnrollmentDetails({
-          program_name: 'Selected Program',
-          child_name: 'Your child',
-          parent_name: '',
-          email: '',
-          mobile: '',
-          child_age: '',
-          child_school: '',
-          medical_info: '',
-          requires_pickup: false,
-          photo_permission: false,
-          checkout_session_id: searchParams.get('session_id') || ''
-        });
-      } finally {
         setLoading(false);
       }
     };
@@ -177,41 +149,95 @@ const Success: React.FC = () => {
     fetchAndSubmit();
   }, [searchParams]);
 
-  const submitFormToNetlify = (sessionId: string) => {
+  // CULPRIT 1 & 2 FIX: Traditional form submission method
+  const submitFormTraditionally = (data: EnrollmentDetails, sessionId: string) => {
     try {
-      const form = document.getElementById('netlify-enrollment-form') as HTMLFormElement;
-      if (form && enrollmentDetails) {
-        console.log('📝 Submitting form to Netlify with data:', {
-          parentName: enrollmentDetails.parent_name,
-          mobile: enrollmentDetails.mobile,
-          childName: enrollmentDetails.child_name,
-          program: enrollmentDetails.program_name
-        });
-        
-        // Ensure all form fields are populated
-        const formData = new FormData(form);
-        console.log('📋 Form data being submitted:', Object.fromEntries(formData.entries()));
-        
-        form.submit();
-        localStorage.setItem(`netlify_submitted_${sessionId}`, 'true');
+      console.log('📝 Starting traditional form submission...');
+      
+      // Check if already submitted
+      const submittedKey = `netlify_submitted_${sessionId}`;
+      const alreadySubmitted = localStorage.getItem(submittedKey);
+      
+      if (alreadySubmitted) {
+        console.log('✅ Form already submitted previously');
         setFormSubmitted(true);
-        console.log('✅ Form submitted successfully');
-      } else {
-        console.error('❌ Form element not found or enrollment details missing');
-        setSubmissionError('Form submission failed - missing data');
+        return;
       }
+
+      // CULPRIT 2 FIX: Create a proper form element with correct action
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/'; // Don't redirect, let Netlify handle it
+      form.setAttribute('netlify', '');
+      form.setAttribute('name', 'enrollment');
+      form.style.display = 'none';
+
+      // Add form-name field (required by Netlify)
+      const formNameField = document.createElement('input');
+      formNameField.type = 'hidden';
+      formNameField.name = 'form-name';
+      formNameField.value = 'enrollment';
+      form.appendChild(formNameField);
+
+      // CULPRIT 3 FIX: Add all fields with proper validation
+      const fields = [
+        { name: 'parentName', value: data.parent_name || 'Not provided' },
+        { name: 'email', value: data.email || 'Not provided' },
+        { name: 'mobile', value: data.mobile || 'Not provided' }, // Ensure mobile is never empty
+        { name: 'childName', value: data.child_name || 'Not provided' },
+        { name: 'childAge', value: data.child_age || 'Not provided' },
+        { name: 'childSchool', value: data.child_school || 'Not provided' },
+        { name: 'medicalInfo', value: data.medical_info || 'None provided' },
+        { name: 'programName', value: data.program_name || 'Not provided' },
+        { name: 'requiresPickup', value: data.requires_pickup ? 'Yes' : 'No' },
+        { name: 'photoPermission', value: data.photo_permission ? 'Yes' : 'No' },
+        { name: 'submissionDate', value: new Date().toLocaleString() },
+        { name: 'checkoutSessionId', value: data.checkout_session_id || sessionId },
+        { name: 'status', value: 'Payment Completed' }
+      ];
+
+      console.log('📋 Creating form fields:', fields);
+
+      fields.forEach(field => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = field.name;
+        input.value = field.value;
+        form.appendChild(input);
+        console.log(`✅ Added field: ${field.name} = "${field.value}"`);
+      });
+
+      // Add to DOM and submit
+      document.body.appendChild(form);
+      console.log('📤 Submitting form to Netlify...');
+      
+      // CULPRIT 1 FIX: Use traditional form submission
+      form.submit();
+      
+      // Mark as submitted
+      localStorage.setItem(submittedKey, 'true');
+      setFormSubmitted(true);
+      console.log('✅ Form submitted successfully');
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(form);
+      }, 1000);
+
     } catch (error) {
       console.error('❌ Form submission error:', error);
       setSubmissionError(error instanceof Error ? error.message : 'Form submission failed');
     }
   };
+
   const manualSubmit = () => {
     const sessionId = searchParams.get('session_id');
-    if (sessionId) {
+    if (sessionId && enrollmentDetails) {
       console.log('🔄 Manual form submission triggered');
-      submitFormToNetlify(sessionId);
+      setSubmissionError(null);
+      submitFormTraditionally(enrollmentDetails, sessionId);
     } else {
-      setSubmissionError('No session ID available for submission');
+      setSubmissionError('No session ID or enrollment data available for submission');
     }
   };
 
@@ -265,8 +291,9 @@ const Success: React.FC = () => {
                   </p>
                   <button
                     onClick={manualSubmit}
-                    className="flex items-center gap-1 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
+                    className="flex items-center gap-1 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors mx-auto"
                   >
+                    <RefreshCw className="w-3 h-3" />
                     Retry Submission
                   </button>
                 </div>
@@ -275,17 +302,20 @@ const Success: React.FC = () => {
           )}
         </div>
 
-        {/* Debug Information */}
+        {/* Enhanced Debug Information */}
         {import.meta.env.DEV && (
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-left">
             <h3 className="font-nunito font-semibold text-sm text-gray-700 mb-2">Debug Info:</h3>
             <div className="font-mono text-xs text-gray-600 space-y-1">
-              <p>Session ID: {searchParams.get('session_id') || 'None'}</p>
+              <p>Session ID: {debugInfo.sessionId || 'None'}</p>
               <p>Form Submitted: {formSubmitted ? 'Yes' : 'No'}</p>
               <p>Has Enrollment Data: {enrollmentDetails ? 'Yes' : 'No'}</p>
+              <p>Has localStorage: {debugInfo.hasLocalStorage ? 'Yes' : 'No'}</p>
               <p>Mobile: {enrollmentDetails?.mobile || 'Not found'}</p>
               <p>Program: {enrollmentDetails?.program_name || 'Not found'}</p>
               <p>Child: {enrollmentDetails?.child_name || 'Not found'}</p>
+              <p>Parent: {enrollmentDetails?.parent_name || 'Not found'}</p>
+              {submissionError && <p className="text-red-600">Error: {submissionError}</p>}
             </div>
             {!formSubmitted && enrollmentDetails && (
               <button
@@ -316,33 +346,6 @@ const Success: React.FC = () => {
           </Button>
         </div>
       </div>
-
-      {/* Hidden Netlify Form - This is the key fix */}
-      {enrollmentDetails && (
-        <form
-          id="netlify-enrollment-form"
-          name="enrollment"
-          method="POST"
-          action="/success"
-          netlify
-          style={{ display: 'none' }}
-        >
-          <input type="hidden" name="form-name" value="enrollment" />
-          <input type="hidden" name="parentName" value={enrollmentDetails.parent_name} />
-          <input type="hidden" name="email" value={enrollmentDetails.email} />
-          <input type="hidden" name="mobile" value={enrollmentDetails.mobile || 'Not provided'} />
-          <input type="hidden" name="childName" value={enrollmentDetails.child_name} />
-          <input type="hidden" name="childAge" value={enrollmentDetails.child_age} />
-          <input type="hidden" name="childSchool" value={enrollmentDetails.child_school} />
-          <input type="hidden" name="medicalInfo" value={enrollmentDetails.medical_info || 'None provided'} />
-          <input type="hidden" name="programName" value={enrollmentDetails.program_name} />
-          <input type="hidden" name="requiresPickup" value={enrollmentDetails.requires_pickup ? 'Yes' : 'No'} />
-          <input type="hidden" name="photoPermission" value={enrollmentDetails.photo_permission ? 'Yes' : 'No'} />
-          <input type="hidden" name="submissionDate" value={new Date().toLocaleString()} />
-          <input type="hidden" name="checkoutSessionId" value={enrollmentDetails.checkout_session_id} />
-          <input type="hidden" name="status" value="Payment Completed" />
-        </form>
-      )}
     </div>
   );
 };

@@ -131,7 +131,7 @@ const EnrolNow: React.FC = () => {
       const enrollmentForStorage = {
         parentName: formData.parentName,
         email: formData.email,
-        mobile: formData.mobile,
+        mobile: formData.mobile || 'Not provided', // CULPRIT 3 FIX: Ensure mobile is never empty
         childName: formData.childName,
         childAge: formData.childAge,
         childSchool: formData.childSchool,
@@ -143,6 +143,8 @@ const EnrolNow: React.FC = () => {
         sessionId: sessionId,
         checkoutSessionId: sessionId
       };
+      
+      console.log('📦 Storing enrollment data with mobile:', enrollmentForStorage.mobile);
       localStorage.setItem('pendingEnrollment', JSON.stringify(enrollmentForStorage));
       console.log('📦 Stored enrollment data in localStorage:', enrollmentForStorage);
 

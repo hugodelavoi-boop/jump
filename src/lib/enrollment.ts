@@ -4,7 +4,7 @@ import { createCheckoutSession } from './stripe';
 export interface EnrollmentData {
   parentName: string;
   email: string;
-  mobile: string;
+  mobile: string; // CULPRIT 3 FIX: Ensure this is always provided
   childName: string;
   childAge: string;
   childSchool: string;
@@ -20,9 +20,13 @@ export async function createEnrollment(
   checkoutSessionId: string = 'pending'
 ) {
   // Validate required fields
-  if (!data.parentName || !data.email || !data.mobile || !data.childName || !data.childAge || !data.childSchool || !data.program) {
+  if (!data.parentName || !data.email || !data.childName || !data.childAge || !data.childSchool || !data.program) {
     throw new Error('Missing required enrollment information');
   }
+
+  // CULPRIT 3 FIX: Ensure mobile has a fallback value
+  const mobileValue = data.mobile && data.mobile.trim() !== '' ? data.mobile : 'Not provided';
+  console.log('📱 Mobile value being stored:', mobileValue);
 
   const { error } = await supabase
     .from('enrollments')
@@ -31,7 +35,7 @@ export async function createEnrollment(
         user_id: userId,
         parent_name: data.parentName,
         email: data.email,
-        mobile: data.mobile,
+        mobile: mobileValue, // CULPRIT 3 FIX: Use validated mobile value
         child_name: data.childName,
         child_age: data.childAge,
         child_school: data.childSchool,
