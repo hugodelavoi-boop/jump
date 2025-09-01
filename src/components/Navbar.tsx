@@ -60,6 +60,7 @@ const Navbar: React.FC = () => {
               <Link 
                 key={link.name}
                 to={link.href}
+                itemProp={link.name === 'Home' ? 'url' : undefined}
                 className={`font-nunito font-medium hover:text-electric-blue transition-colors ${
                   isScrolled ? 'text-navy' : 'text-white'
                 }`}

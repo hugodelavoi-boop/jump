@@ -7,6 +7,47 @@ import { useNavigate } from 'react-router-dom';
 const Programs: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+
+  // Add sports program structured data
+  useEffect(() => {
+    const programScript = document.createElement('script');
+    programScript.type = 'application/ld+json';
+    programScript.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SportsEvent",
+      "name": "Jump Start Sports Programs",
+      "description": "Multi-sport programs for children aged 5-12",
+      "sport": ["Soccer", "AFL", "Basketball", "Tennis", "Dodgeball"],
+      "organizer": {
+        "@type": "SportsOrganization",
+        "name": "Jump Start Sports",
+        "url": "https://www.jumpstartsports.com.au"
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Children",
+        "suggestedMinAge": 5,
+        "suggestedMaxAge": 12
+      },
+      "location": {
+        "@type": "Place",
+        "name": "Perth Schools",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Perth",
+          "addressRegion": "WA",
+          "addressCountry": "AU"
+        }
+      }
+    });
+    document.head.appendChild(programScript);
+
+    return () => {
+      if (document.head.contains(programScript)) {
+        document.head.removeChild(programScript);
+      }
+    };
+  }, []);
   
   const benefits = [
     'Multi-sport variety',

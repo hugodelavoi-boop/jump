@@ -10,6 +10,38 @@ import Footer from '../components/Footer';
 const Home: React.FC = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
+  // Add structured data for sports organization
+  useEffect(() => {
+    // Add breadcrumb structured data
+    const breadcrumbScript = document.createElement('script');
+    breadcrumbScript.type = 'application/ld+json';
+    breadcrumbScript.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.jumpstartsports.com.au"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Sports Programs",
+          "item": "https://www.jumpstartsports.com.au/programs"
+        }
+      ]
+    });
+    document.head.appendChild(breadcrumbScript);
+
+    return () => {
+      if (document.head.contains(breadcrumbScript)) {
+        document.head.removeChild(breadcrumbScript);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     // Initialize Vimeo player safely
     const initializePlayer = () => {

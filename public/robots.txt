@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.jumpstartsports.com.au/sitemap.xml
+
+# Sports and education related content
+# This site provides educational sports programs for children
+# Category: Sports, Education, Youth Development
+# Target Audience: Parents, Schools, Children aged 5-12
+# Content Type: Educational Sports Services
