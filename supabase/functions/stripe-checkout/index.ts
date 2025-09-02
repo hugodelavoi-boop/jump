@@ -104,6 +104,9 @@ Deno.serve(async (req) => {
     if (customer_email) {
       customerData.customer_email = customer_email;
     }
+    if (customer_name) {
+      customerData.customer_name = customer_name;
+    }
     
     // Add metadata for better receipt information
     const metadata: any = {};
