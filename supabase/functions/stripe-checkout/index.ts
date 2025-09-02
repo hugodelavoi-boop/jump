@@ -117,6 +117,11 @@ Deno.serve(async (req) => {
     metadata.business_name = 'Jump Start Sports';
     metadata.service_type = mode === 'subscription' ? 'Sports Program Subscription' : 'Sports Program Enrollment';
     
+    // Create descriptive text for the transaction
+    const childText = child_name ? ` for ${child_name}` : '';
+    const programText = mode === 'subscription' ? 'Sports Program Subscription' : 'Sports Program Enrollment';
+    const transactionDescription = `Jump Start Sports - ${programText}${childText}`;
+    
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -131,17 +136,21 @@ Deno.serve(async (req) => {
       cancel_url,
       ...customerData,
       metadata,
+      payment_intent_data: mode === 'payment' ? {
+        description: transactionDescription,
+        metadata,
+      } : undefined,
       invoice_creation: mode === 'payment' ? {
         enabled: true,
         invoice_data: {
-          description: `Jump Start Sports enrollment for ${child_name || 'child'}`,
+          description: transactionDescription,
           metadata,
           footer: 'Thank you for choosing Jump Start Sports! Contact us at hello@jumpstartsports.com.au for any questions.',
         },
       } : undefined,
       subscription_data: mode === 'subscription' ? {
         metadata,
-        description: `Jump Start Sports program subscription for ${child_name || 'child'}`,
+        description: transactionDescription,
       } : undefined,
     });
 
