@@ -3,7 +3,7 @@
 ## Switching Between Sandbox and Live Mode
 
 ### Current Status
-Your Stripe integration is currently configured for **LIVE MODE**. This means real payments are being processed.
+Your Stripe integration is currently configured for **SANDBOX MODE**. This means test payments are being processed and no real money will be charged.
 
 ## To Switch to Sandbox Mode (Recommended for Testing)
 
