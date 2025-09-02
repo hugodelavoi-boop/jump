@@ -182,6 +182,13 @@ const Success: React.FC = () => {
       formNameField.value = 'enrollment';
       form.appendChild(formNameField);
 
+      // Add title field for Netlify form identification
+      const titleField = document.createElement('input');
+      titleField.type = 'hidden';
+      titleField.name = 'title';
+      titleField.value = `${data.child_name} - ${data.program_name}`;
+      form.appendChild(titleField);
+
       // CULPRIT 3 FIX: Add all fields with proper validation
       const fields = [
         { name: 'parentName', value: data.parent_name || 'Not provided' },
