@@ -92,7 +92,9 @@ export async function createEnrollmentCheckout(
       accessToken,
       successUrl,
       cancelUrl,
-      enrollmentData.email
+      enrollmentData.email,
+      enrollmentData.parentName,
+      enrollmentData.childName
     );
 
     return checkoutUrl;

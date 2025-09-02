@@ -5,6 +5,8 @@ export async function createCheckoutSession(
   successUrl: string,
   cancelUrl: string,
   customerEmail?: string,
+  customerName?: string,
+  childName?: string,
 ): Promise<{ url: string; sessionId: string }> {
   console.log('Creating checkout session with:', { 
     priceId, 
@@ -30,6 +32,8 @@ export async function createCheckoutSession(
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: customerEmail,
+      customer_name: customerName,
+      child_name: childName,
     }),
   });
 

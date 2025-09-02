@@ -55,6 +55,7 @@ Deno.serve(async (req) => {
     
     const { price_id, success_url, cancel_url, mode } = parsedBody;
     const { price_id, success_url, cancel_url, mode, customer_email } = parsedBody;
+    const { customer_name, child_name } = parsedBody;
     console.log('Parsed parameters:', { price_id, success_url, cancel_url, mode });
     console.log('Parsed parameters:', { price_id, success_url, cancel_url, mode, customer_email });
     
@@ -75,7 +76,6 @@ Deno.serve(async (req) => {
         price_id: 'string',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
-        customer_email: 'string',
       },
     );
 
@@ -101,6 +101,24 @@ Deno.serve(async (req) => {
     
     console.log('Creating Stripe checkout session...');
     
+    // Prepare customer data for better receipts
+    const customerData: any = {};
+    if (customer_email) {
+      customerData.customer_email = customer_email;
+    }
+    
+    // Add metadata for better receipt information
+    const metadata: any = {};
+    if (customer_name) {
+      metadata.customer_name = customer_name;
+    }
+    if (child_name) {
+      metadata.child_name = child_name;
+      metadata.enrollment_for = child_name;
+    }
+    metadata.business_name = 'Jump Start Sports';
+    metadata.service_type = mode === 'subscription' ? 'Sports Program Subscription' : 'Sports Program Enrollment';
+    
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -113,7 +131,20 @@ Deno.serve(async (req) => {
       mode,
       success_url,
       cancel_url,
-      customer_email: customer_email || userEmail,
+      ...customerData,
+      metadata,
+      invoice_creation: mode === 'payment' ? {
+        enabled: true,
+        invoice_data: {
+          description: `Jump Start Sports enrollment for ${child_name || 'child'}`,
+          metadata,
+          footer: 'Thank you for choosing Jump Start Sports! Contact us at hello@jumpstartsports.com.au for any questions.',
+        },
+      } : undefined,
+      subscription_data: mode === 'subscription' ? {
+        metadata,
+        description: `Jump Start Sports program subscription for ${child_name || 'child'}`,
+      } : undefined,
     });
 
     console.log('Stripe session created successfully:', session.id);
