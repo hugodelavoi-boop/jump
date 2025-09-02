@@ -1,12 +1,5 @@
 # jumpstart
 
-## Current Mode: SANDBOX (Test Mode)
-
-The application is currently configured for Stripe sandbox mode. This means:
-- No real payments will be processed
-- Use test card numbers like 4242 4242 4242 4242
-- All transactions are simulated
-
 ## Stripe Configuration
 
 This project uses Stripe for payment processing. To switch between sandbox (test) and live modes:

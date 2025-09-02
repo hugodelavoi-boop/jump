@@ -1,7 +1,7 @@
 // Stripe product configuration
 export const products = {
   testProduct: {
-    priceId: 'price_1S2lvTCBYvO68Xc6V7BFEXOK', // This should be your TEST price ID (price_test_...)
+    priceId: 'price_1S2lvTCBYvO68Xc6V7BFEXOK',
     name: 'Test Product',
     description: 'Test product for Jump Start Sports enrollment',
     mode: 'payment' as const,
