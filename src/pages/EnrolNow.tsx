@@ -121,7 +121,8 @@ const EnrolNow: React.FC = () => {
         mode,
         session.access_token,
         successUrl,
-        cancelUrl
+        cancelUrl,
+        formData.email
       );
 
       console.log('Checkout URL created:', checkoutUrl);

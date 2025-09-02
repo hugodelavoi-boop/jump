@@ -4,12 +4,14 @@ export async function createCheckoutSession(
   accessToken: string,
   successUrl: string,
   cancelUrl: string,
+  customerEmail?: string,
 ): Promise<{ url: string; sessionId: string }> {
   console.log('Creating checkout session with:', { 
     priceId, 
     mode, 
     successUrl, 
     cancelUrl,
+    customerEmail,
     modeType: typeof mode,
     modeValue: mode 
   });
@@ -27,6 +29,7 @@ export async function createCheckoutSession(
       mode,
       success_url: successUrl,
       cancel_url: cancelUrl,
+      customer_email: customerEmail,
     }),
   });
 

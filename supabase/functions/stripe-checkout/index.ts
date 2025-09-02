@@ -54,7 +54,9 @@ Deno.serve(async (req) => {
     }
     
     const { price_id, success_url, cancel_url, mode } = parsedBody;
+    const { price_id, success_url, cancel_url, mode, customer_email } = parsedBody;
     console.log('Parsed parameters:', { price_id, success_url, cancel_url, mode });
+    console.log('Parsed parameters:', { price_id, success_url, cancel_url, mode, customer_email });
     
     // Get user from JWT token
     const authHeader = req.headers.get('Authorization');
@@ -67,11 +69,13 @@ Deno.serve(async (req) => {
 
     const validationError = validateParameters(
       { price_id, success_url, cancel_url, mode },
+      { price_id, success_url, cancel_url, mode, customer_email },
       {
         cancel_url: 'string',
         price_id: 'string',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
+        customer_email: 'string',
       },
     );
 
@@ -109,7 +113,7 @@ Deno.serve(async (req) => {
       mode,
       success_url,
       cancel_url,
-      customer_email: userEmail,
+      customer_email: customer_email || userEmail,
     });
 
     console.log('Stripe session created successfully:', session.id);
