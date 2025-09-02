@@ -191,3 +191,8 @@ function validateParameters<T extends Record<string, any>>(values: T, expected: 
 
   return undefined;
 }
+
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
