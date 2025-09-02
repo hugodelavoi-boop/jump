@@ -171,8 +171,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-                      {subscription && (
-                        <span className="font-nunito text-xs text-electric-blue ml-6">
-                          Active Plan
-                        </span>
-                      )}
