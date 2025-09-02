@@ -77,25 +77,16 @@ export async function createEnrollmentCheckout(
   accessToken: string
 ): Promise<string> {
   try {
-    // First, get the product details to determine mode
-    const { data: product, error: productError } = await supabase
-      .from('stripe_products')
-      .select('*')
-      .eq('price_id', enrollmentData.program)
-      .single();
-
-    if (productError) {
-      console.error('Product fetch error:', productError);
-      throw new Error('Failed to fetch program details');
-    }
+    // Use payment mode for our test product
+    const mode = 'payment';
 
     // Create checkout session
     const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${window.location.origin}/enrol`;
 
-    const checkoutUrl = await createCheckoutSession(
+    const { url: checkoutUrl } = await createCheckoutSession(
       enrollmentData.program,
-      product.mode as 'payment' | 'subscription',
+      mode,
       accessToken,
       successUrl,
       cancelUrl

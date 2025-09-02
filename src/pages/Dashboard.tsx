@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../hooks/useAuth';
+import { useUserSubscription } from '../hooks/useUserSubscription';
 import { supabase } from '../lib/supabase';
-import { User, Calendar, CreditCard, FileText, Mail, Phone } from 'lucide-react';
+import { User, Calendar, CreditCard, FileText, Mail, Phone, CheckCircle2 } from 'lucide-react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,7 @@ interface UserEnrollment {
 
 const Dashboard: React.FC = () => {
   const { session, loading: authLoading } = useAuth();
+  const { subscription, loading: subscriptionLoading } = useUserSubscription();
   const [enrollments, setEnrollments] = useState<UserEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -77,6 +79,14 @@ const Dashboard: React.FC = () => {
                 <p className="font-nunito text-gray-600">
                   {session.user.email}
                 </p>
+                {subscription && !subscriptionLoading && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span className="font-nunito text-sm text-green-600">
+                      Active Plan
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -159,6 +169,46 @@ const Dashboard: React.FC = () => {
 
             {/* Quick Actions */}
             <div className="space-y-6">
+              {/* Subscription Status */}
+              {!subscriptionLoading && (
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
+                    Subscription Status
+                  </h3>
+                  {subscription ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        <span className="font-nunito text-green-600 font-medium">
+                          Active Plan
+                        </span>
+                      </div>
+                      <p className="font-nunito text-sm text-gray-600">
+                        Status: {subscription.subscription_status}
+                      </p>
+                      {subscription.current_period_end && (
+                        <p className="font-nunito text-sm text-gray-600">
+                          Next billing: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="font-nunito text-gray-500 mb-4">
+                        No active subscription
+                      </p>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => navigate('/enrol')}
+                      >
+                        Subscribe Now
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
                   Quick Actions
