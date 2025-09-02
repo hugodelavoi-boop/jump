@@ -4,7 +4,7 @@ export async function createCheckoutSession(
   accessToken: string,
   successUrl: string,
   cancelUrl: string,
-): Promise<{ url: string; sessionId: string }> {
+) {
   console.log('Creating checkout session with:', { 
     priceId, 
     mode, 
@@ -48,9 +48,12 @@ export async function createCheckoutSession(
     throw new Error(error.error || 'Failed to create checkout session');
   }
 
-  const { url, sessionId } = await response.json();
+  const { url } = await response.json();
   console.log('Checkout URL created:', url);
-  console.log('Session ID:', sessionId);
+  
+  // Extract session ID from the URL
+  const urlObj = new URL(url);
+  const sessionId = urlObj.searchParams.get('session_id') || url.split('/').pop();
   
   return { url, sessionId };
 }

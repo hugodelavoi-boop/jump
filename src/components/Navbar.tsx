@@ -4,14 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
-import { useUserSubscription } from '../hooks/useUserSubscription';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { session } = useAuth();
-  const { subscription } = useUserSubscription();
   
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -144,11 +142,6 @@ const Navbar: React.FC = () => {
                       <LogOut className="w-4 h-4" />
                     </button>
                   </div>
-                  {subscription && (
-                    <span className="font-nunito text-xs text-electric-blue">
-                      Active Plan
-                    </span>
-                  )}
                 </div>
               )}
               
@@ -171,8 +164,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-                      {subscription && (
-                        <span className="font-nunito text-xs text-electric-blue ml-6">
-                          Active Plan
-                        </span>
-                      )}

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { products as staticProducts } from '../stripe-config';
 
 interface Product {
   product_id: string;
@@ -8,7 +7,6 @@ interface Product {
   name: string;
   description: string | null;
   mode: string | null;
-  price?: string;
 }
 
 interface ProductContextType {
@@ -37,17 +35,16 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
 
-      // Use static products from config for now
-      const productList: Product[] = Object.entries(staticProducts).map(([key, product]) => ({
-        product_id: `prod_${key}`,
-        price_id: product.priceId,
-        name: product.name,
-        description: product.description,
-        mode: product.mode,
-        price: product.price,
-      }));
+      const { data, error: fetchError } = await supabase
+        .from('active_products')
+        .select('*')
+        .order('created_at', { ascending: true });
 
-      setProducts(productList);
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      setProducts(data || []);
     } catch (err) {
       console.error('Error fetching products:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
