@@ -3,9 +3,11 @@ import Navbar from '../components/Navbar';
 import { Calendar, Clock, Users, Shield, Target, Bell, Sunrise, ArrowRight, ClipboardCheck, UserCheck, Shirt, Droplet, ShoppingBag, Star, Trophy, Heart } from 'lucide-react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { useProducts } from '../contexts/ProductContext';
 
 const Programs: React.FC = () => {
   const navigate = useNavigate();
+  const { products } = useProducts();
   const [email, setEmail] = useState('');
 
   // Add sports program structured data
@@ -108,6 +110,72 @@ const Programs: React.FC = () => {
                 These sessions are more than just a sports class. They're carefully designed by experts in children's movement and development to build physical literacy, social confidence, and a genuine love for being active.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Available Programs Section */}
+      <section className="py-16 md:py-24 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="font-fredoka font-bold text-3xl md:text-4xl text-navy mb-4">
+              Available Programs
+            </h2>
+            <p className="font-nunito text-lg text-gray-700 max-w-3xl mx-auto">
+              Choose the program that best fits your child's needs and your family's schedule.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {products.map((product) => (
+              <div 
+                key={product.price_id}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+              >
+                <div className="p-8">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-fredoka font-bold text-2xl text-navy">
+                      {product.name}
+                    </h3>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                      product.mode === 'subscription' 
+                        ? 'bg-electric-blue/10 text-electric-blue' 
+                        : 'bg-orange/10 text-orange'
+                    }`}>
+                      {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
+                    </span>
+                  </div>
+                  
+                  {product.price && (
+                    <div className="mb-4">
+                      <span className="font-nunito text-3xl font-bold text-electric-blue">
+                        {product.price}
+                      </span>
+                      {product.mode === 'subscription' && (
+                        <span className="font-nunito text-gray-600 ml-1">/month</span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {product.description && (
+                    <p className="font-nunito text-gray-600 mb-6">
+                      {product.description}
+                    </p>
+                  )}
+                  
+                  <Button 
+                    variant="primary"
+                    className="w-full group"
+                    onClick={() => navigate('/enrol')}
+                  >
+                    <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
+                      Enrol Now
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

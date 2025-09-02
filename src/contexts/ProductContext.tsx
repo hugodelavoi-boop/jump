@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { products as staticProducts } from '../stripe-config';
 
 interface Product {
-  product_id: string;
+  id: string;
   price_id: string;
   name: string;
   description: string | null;
@@ -37,9 +36,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
 
-      // Use static products from config for now
+      // Use static products from config
       const productList: Product[] = Object.entries(staticProducts).map(([key, product]) => ({
-        product_id: `prod_${key}`,
+        id: product.id,
         price_id: product.priceId,
         name: product.name,
         description: product.description,
@@ -58,21 +57,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     fetchProducts();
-
-    // Subscribe to product changes
-    const channel = supabase.channel('product_changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'stripe_products' 
-      }, () => {
-        fetchProducts();
-      })
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
   }, []);
 
   return (

@@ -77,8 +77,10 @@ export async function createEnrollmentCheckout(
   accessToken: string
 ): Promise<string> {
   try {
-    // Use payment mode for our test product
-    const mode = 'payment';
+    // Determine mode based on the selected product
+    const { products } = await import('../stripe-config');
+    const selectedProduct = Object.values(products).find(p => p.priceId === enrollmentData.program);
+    const mode = selectedProduct?.mode || 'payment';
 
     // Create checkout session
     const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;

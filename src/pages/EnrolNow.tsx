@@ -432,6 +432,7 @@ const EnrolNow: React.FC = () => {
                               {product.price && (
                                 <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
                                   {product.price}
+                                  {product.mode === 'subscription' && <span className="text-sm text-gray-600 ml-1">/month</span>}
                                 </p>
                               )}
                               {product.description && (
@@ -439,6 +440,15 @@ const EnrolNow: React.FC = () => {
                                   {product.description}
                                 </p>
                               )}
+                              <div className="mt-2">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  product.mode === 'subscription' 
+                                    ? 'bg-electric-blue/10 text-electric-blue' 
+                                    : 'bg-orange/10 text-orange'
+                                }`}>
+                                  {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
+                                </span>
+                              </div>
                             </div>
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                               formData.program === product.price_id

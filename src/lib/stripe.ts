@@ -48,14 +48,10 @@ export async function createCheckoutSession(
     throw new Error(error.error || 'Failed to create checkout session');
   }
 
-  const { url, sessionId } = await response.json();
+  const responseData = await response.json();
+  const { url, sessionId } = responseData;
   console.log('Checkout URL created:', url);
   console.log('Session ID:', sessionId);
   
   return { url, sessionId };
-}
-
-export function getProductByPriceId(priceId: string) {
-  // This function can remain for static product lookups if needed
-  return null;
 }

@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                     <span className="font-nunito text-sm text-green-600">
-                      Active Plan
+                      {subscription.product_name || 'Active Plan'}
                     </span>
                   </div>
                 )}
@@ -180,7 +180,7 @@ const Dashboard: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-5 h-5 text-green-500" />
                         <span className="font-nunito text-green-600 font-medium">
-                          Active Plan
+                          {subscription.product_name || 'Active Plan'}
                         </span>
                       </div>
                       <p className="font-nunito text-sm text-gray-600">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '../lib/supabase';
+import { products } from '../stripe-config';
 
 interface UserSubscription {
   subscription_id: string | null;
@@ -9,6 +10,7 @@ interface UserSubscription {
   current_period_start: number | null;
   current_period_end: number | null;
   cancel_at_period_end: boolean | null;
+  product_name?: string;
 }
 
 export function useUserSubscription() {
@@ -46,6 +48,7 @@ export function useUserSubscription() {
             current_period_start: data.current_period_start,
             current_period_end: data.current_period_end,
             cancel_at_period_end: data.cancel_at_period_end,
+            product_name: getProductNameByPriceId(data.price_id),
           });
         } else {
           setSubscription(null);
@@ -75,6 +78,12 @@ export function useUserSubscription() {
       channel.unsubscribe();
     };
   }, [session]);
+
+  const getProductNameByPriceId = (priceId: string | null): string | undefined => {
+    if (!priceId) return undefined;
+    const product = Object.values(products).find(p => p.priceId === priceId);
+    return product?.name;
+  };
 
   return {
     subscription,

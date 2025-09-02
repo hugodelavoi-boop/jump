@@ -263,10 +263,11 @@ const Success: React.FC = () => {
         
         {enrollmentDetails && (
           <p className="font-nunito text-gray-600 mb-8">
-            Thank you for your purchase! Your payment for {enrollmentDetails.program_name || 'Test Product'} has been processed successfully.
+            Thank you for your purchase! Your payment for {enrollmentDetails.program_name || 'your selected program'} has been processed successfully.
             {enrollmentDetails.child_name && (
               <span> {enrollmentDetails.child_name} is now enrolled.</span>
             )}
+            <br />
             <br />You'll receive a confirmation email shortly with all the details.
           </p>
         )}
