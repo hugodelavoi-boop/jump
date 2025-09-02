@@ -138,6 +138,7 @@ const EnrolNow: React.FC = () => {
         medicalInfo: formData.medicalInfo,
         program: formData.program,
         programName: selectedProduct?.name || 'Selected Program',
+        paymentType: selectedProduct?.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment',
         requiresPickup: formData.requiresPickup,
         photoPermission: formData.photoPermission,
         sessionId: sessionId,

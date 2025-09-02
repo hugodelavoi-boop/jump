@@ -6,6 +6,7 @@ import { getEnrollmentBySessionId } from '../lib/enrollment';
 
 interface EnrollmentDetails {
   program_name: string;
+  payment_type: string;
   child_name: string;
   parent_name: string;
   email: string;
@@ -65,6 +66,7 @@ const Success: React.FC = () => {
             
             const enrollmentData: EnrollmentDetails = {
               program_name: parsed.programName || 'Selected Program',
+              payment_type: parsed.paymentType || 'Not specified',
               child_name: parsed.childName || 'Your child',
               parent_name: parsed.parentName || 'Parent',
               email: parsed.email || 'email@example.com',
@@ -118,6 +120,7 @@ const Success: React.FC = () => {
         console.log('⚠️ Using fallback data');
         const fallbackData: EnrollmentDetails = {
           program_name: 'Selected Program',
+          payment_type: 'Not specified',
           child_name: 'Your child',
           parent_name: 'Parent',
           email: 'email@example.com',
@@ -189,6 +192,7 @@ const Success: React.FC = () => {
         { name: 'childSchool', value: data.child_school || 'Not provided' },
         { name: 'medicalInfo', value: data.medical_info || 'None provided' },
         { name: 'programName', value: data.program_name || 'Not provided' },
+        { name: 'paymentType', value: data.payment_type || 'Not specified' },
         { name: 'requiresPickup', value: data.requires_pickup ? 'Yes' : 'No' },
         { name: 'photoPermission', value: data.photo_permission ? 'Yes' : 'No' },
         { name: 'submissionDate', value: new Date().toLocaleString() },
