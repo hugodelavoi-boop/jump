@@ -27,6 +27,13 @@ interface FormData {
 const EnrolNow: React.FC = () => {
   const { products, loading: productsLoading } = useProducts();
   const { session } = useAuth();
+  
+  // Force refresh products when component mounts
+  useEffect(() => {
+    console.log('🔄 EnrolNow page mounted, products available:', products.length);
+    console.log('📊 Current products:', products);
+  }, [products]);
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -10,6 +10,7 @@ const Programs: React.FC = () => {
   const navigate = useNavigate();
   const { products } = useProducts();
   const [email, setEmail] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Add sports program structured data
   useEffect(() => {
@@ -51,6 +52,15 @@ const Programs: React.FC = () => {
       }
     };
   }, []);
+  
+  // Force refresh products when component mounts
+  useEffect(() => {
+    console.log('🔄 Programs page mounted, products available:', products.length);
+    if (products.length === 0) {
+      console.log('⚠️ No products found, triggering refresh...');
+      setRefreshKey(prev => prev + 1);
+    }
+  }, [products]);
   
   const benefits = [
     'Multi-sport variety',

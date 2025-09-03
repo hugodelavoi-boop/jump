@@ -36,12 +36,14 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
       
-      console.log('Fetching products from Supabase...');
+      console.log('🔄 Force refreshing products from Supabase...');
+      console.log('🕐 Timestamp:', new Date().toISOString());
 
       // Fetch products from Supabase (synced from Stripe via webhook)
       const { data, error: fetchError } = await supabase
         .from('active_products')
         .select('*')
+        .eq('active', true)
         .order('name', { ascending: true });
 
       if (fetchError) {
@@ -49,7 +51,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw fetchError;
       }
 
-      console.log('Raw product data from database:', data);
+      console.log('📊 Raw product data from database:', data);
+      console.log('📈 Number of products found:', data?.length || 0);
 
       const productList: Product[] = (data || []).map(product => ({
         id: product.product_id,
@@ -60,7 +63,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         price: product.price_display || 'Contact for pricing',
       }));
       
-      console.log('Processed product list:', productList);
+      console.log('✅ Processed product list:', productList);
       setProducts(productList);
     } catch (err) {
       console.error('Error fetching products:', err);
