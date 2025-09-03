@@ -138,13 +138,11 @@ const Programs: React.FC = () => {
                     <h3 className="font-fredoka font-bold text-2xl text-navy">
                       {product.name}
                     </h3>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      product.mode === 'subscription' 
-                        ? 'bg-electric-blue/10 text-electric-blue' 
-                        : 'bg-orange/10 text-orange'
-                    }`}>
-                      {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
-                    </span>
+                    {product.mode === 'subscription' && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
+                        Recurring
+                      </span>
+                    )}
                   </div>
                   
                   {product.price && (

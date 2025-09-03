@@ -445,13 +445,11 @@ const EnrolNow: React.FC = () => {
                                 </p>
                               )}
                               <div className="mt-2">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  product.mode === 'subscription' 
-                                    ? 'bg-electric-blue/10 text-electric-blue' 
-                                    : 'bg-orange/10 text-orange'
-                                }`}>
-                                  {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
-                                </span>
+                                {product.mode === 'subscription' && (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
+                                    Recurring
+                                  </span>
+                                )}
                               </div>
                               
                               {/* Additional product details */}
