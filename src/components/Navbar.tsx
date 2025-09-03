@@ -73,10 +73,13 @@ const Navbar: React.FC = () => {
             
             {session && (
               <div className="flex items-center space-x-4">
-                <div className={`flex items-center space-x-2 ${isScrolled ? 'text-navy' : 'text-white'}`}>
+                <Link 
+                  to="/dashboard"
+                  className={`flex items-center space-x-2 hover:text-electric-blue transition-colors ${isScrolled ? 'text-navy' : 'text-white'}`}
+                >
                   <User className="w-4 h-4" />
                   <span className="font-nunito text-sm">{session.user.email}</span>
-                </div>
+                </Link>
                 <button
                   onClick={() => supabase.auth.signOut()}
                   className={`p-2 rounded-lg hover:bg-white/10 transition-colors ${
@@ -150,17 +153,6 @@ const Navbar: React.FC = () => {
                     </span>
                   )}
                 </div>
-              )}
-              
-              {session && (
-                <Link
-                  to="/dashboard"
-                  className={`font-nunito font-medium hover:text-electric-blue transition-colors ${
-                    isScrolled ? 'text-navy' : 'text-white'
-                  }`}
-                >
-                  Dashboard
-                </Link>
               )}
             </div>
           </div>
