@@ -113,6 +113,96 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle checkout session completion
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.CheckoutSession;
+      console.log(`💳 Checkout session completed: ${session.id}`);
+      
+      // Update enrollment status to completed
+      const { error: enrollmentError } = await supabase
+        .from('enrollments')
+        .update({ 
+          status: 'completed',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('checkout_session_id', session.id);
+
+      if (enrollmentError) {
+        console.error('Error updating enrollment status:', enrollmentError);
+      } else {
+        console.log(`✅ Updated enrollment status to completed for session: ${session.id}`);
+      }
+
+      // Handle subscription creation
+      if (session.mode === 'subscription' && session.subscription) {
+        const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+        
+        // First, get or create the customer record
+        const { data: existingCustomer } = await supabase
+          .from('stripe_customers')
+          .select('*')
+          .eq('customer_id', session.customer as string)
+          .single();
+
+        if (!existingCustomer && session.customer_details?.email) {
+          // Try to find the user by email
+          const { data: userData } = await supabase.auth.admin.listUsers();
+          const user = userData.users.find(u => u.email === session.customer_details?.email);
+          
+          if (user) {
+            await supabase.from('stripe_customers').insert({
+              user_id: user.id,
+              customer_id: session.customer as string,
+            });
+          }
+        }
+
+        // Upsert subscription data
+        const { error: subscriptionError } = await supabase
+          .from('stripe_subscriptions')
+          .upsert({
+            customer_id: session.customer as string,
+            subscription_id: subscription.id,
+            price_id: subscription.items.data[0]?.price.id,
+            current_period_start: subscription.current_period_start,
+            current_period_end: subscription.current_period_end,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            status: subscription.status,
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'customer_id'
+          });
+
+        if (subscriptionError) {
+          console.error('Error updating subscription:', subscriptionError);
+        } else {
+          console.log(`✅ Updated subscription for customer: ${session.customer}`);
+        }
+      }
+
+      // Handle one-time payment
+      if (session.mode === 'payment' && session.payment_intent) {
+        const { error: orderError } = await supabase
+          .from('stripe_orders')
+          .insert({
+            checkout_session_id: session.id,
+            payment_intent_id: session.payment_intent as string,
+            customer_id: session.customer as string,
+            amount_subtotal: session.amount_subtotal || 0,
+            amount_total: session.amount_total || 0,
+            currency: session.currency || 'aud',
+            payment_status: session.payment_status,
+            status: 'completed',
+          });
+
+        if (orderError) {
+          console.error('Error creating order record:', orderError);
+        } else {
+          console.log(`✅ Created order record for session: ${session.id}`);
+        }
+      }
+    }
+
     console.log(`📝 Webhook processed successfully for event: ${event.type} at ${new Date().toISOString()}`);
     return new Response(JSON.stringify({ received: true }), {
       headers: { 'Content-Type': 'application/json' },
