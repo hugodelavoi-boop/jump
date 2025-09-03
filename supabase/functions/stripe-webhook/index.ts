@@ -87,6 +87,8 @@ Deno.serve(async (req) => {
         if (error) {
           console.error('Error upserting product:', error);
           return new Response('Error updating product in database', { status: 500 });
+        } else {
+          console.log(`✅ Successfully updated product: ${product.name} (${product.id}) at ${new Date().toISOString()}`);
         }
       }
     }
@@ -106,9 +108,12 @@ Deno.serve(async (req) => {
       if (error) {
         console.error('Error marking product as deleted:', error);
         return new Response('Error updating product in database', { status: 500 });
+      } else {
+        console.log(`✅ Successfully marked product as deleted: ${product.name} (${product.id}) at ${new Date().toISOString()}`);
       }
     }
 
+    console.log(`📝 Webhook processed successfully for event: ${event.type} at ${new Date().toISOString()}`);
     return new Response(JSON.stringify({ received: true }), {
       headers: { 'Content-Type': 'application/json' },
     });

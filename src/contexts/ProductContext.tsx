@@ -53,6 +53,17 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       console.log('📊 Raw product data from database:', data);
       console.log('📈 Number of products found:', data?.length || 0);
+      
+      // Log the last updated timestamps
+      if (data && data.length > 0) {
+        const timestamps = data.map(p => ({ name: p.name, updated_at: p.updated_at }));
+        console.log('📅 Product update timestamps:', timestamps);
+        
+        const mostRecent = data.reduce((latest, current) => {
+          return new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest;
+        });
+        console.log(`🕐 Most recently updated product: ${mostRecent.name} at ${mostRecent.updated_at}`);
+      }
 
       const productList: Product[] = (data || []).map(product => ({
         id: product.product_id,
