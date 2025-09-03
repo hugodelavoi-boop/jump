@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '../lib/supabase';
-import { products } from '../stripe-config';
 
 interface UserSubscription {
   subscription_id: string | null;
@@ -81,8 +80,9 @@ export function useUserSubscription() {
 
   const getProductNameByPriceId = (priceId: string | null): string | undefined => {
     if (!priceId) return undefined;
-    const product = Object.values(products).find(p => p.priceId === priceId);
-    return product?.name || 'Unknown Plan';
+    // This will be resolved when the subscription data is fetched from the view
+    // which already includes the product name from the database
+    return 'Active Plan';
   };
 
   return {

@@ -78,8 +78,14 @@ export async function createEnrollmentCheckout(
 ): Promise<string> {
   try {
     // Determine mode based on the selected product
-    const { products } = await import('../stripe-config');
-    const selectedProduct = Object.values(products).find(p => p.priceId === enrollmentData.program);
+    // Fetch the product from Supabase to get the mode
+    const { data: product } = await supabase
+      .from('active_products')
+      .select('mode')
+      .eq('price_id', enrollmentData.program)
+      .single();
+    
+    const selectedProduct = product;
     const mode = selectedProduct?.mode || 'payment';
 
     // Create checkout session

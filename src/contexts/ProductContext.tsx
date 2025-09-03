@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { products as staticProducts } from '../stripe-config';
+import { supabase } from '../lib/supabase';
 
 interface Product {
   id: string;
@@ -36,16 +36,24 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
 
-      // Use static products from config
-      const productList: Product[] = Object.entries(staticProducts).map(([key, product]) => ({
-        id: product.id,
-        price_id: product.priceId,
+      // Fetch products from Supabase (synced from Stripe via webhook)
+      const { data, error: fetchError } = await supabase
+        .from('active_products')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      const productList: Product[] = (data || []).map(product => ({
+        id: product.product_id,
+        price_id: product.price_id || '',
         name: product.name,
         description: product.description,
         mode: product.mode,
-        price: product.price,
+        price: product.price_display || 'Contact for pricing',
       }));
-
       setProducts(productList);
     } catch (err) {
       console.error('Error fetching products:', err);

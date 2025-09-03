@@ -62,6 +62,14 @@ Deno.serve(async (req) => {
       if (prices.data.length > 0) {
         const price = prices.data[0];
         
+        // Format price for display
+        let priceDisplay = 'Contact for pricing';
+        if (price.unit_amount && price.currency) {
+          const amount = price.unit_amount / 100; // Convert from cents
+          const currency = price.currency.toUpperCase();
+          priceDisplay = `${currency === 'AUD' ? 'A$' : currency}${amount.toFixed(2)}`;
+        }
+        
         // Upsert the product data into Supabase
         const { error } = await supabase.from('stripe_products').upsert({
           product_id: product.id,
@@ -70,6 +78,7 @@ Deno.serve(async (req) => {
           description: product.description,
           mode: price.type === 'recurring' ? 'subscription' : 'payment',
           active: product.active,
+          price_display: priceDisplay,
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'product_id'
