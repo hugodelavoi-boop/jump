@@ -273,14 +273,41 @@ const Success: React.FC = () => {
         </h1>
         
         {enrollmentDetails && (
-          <p className="font-nunito text-gray-600 mb-8">
-            Thank you for your purchase! Your payment for {enrollmentDetails.program_name || 'your selected program'} has been processed successfully.
+          <div className="mb-8">
+            <p className="font-nunito text-gray-600 mb-4">
+              Thank you for your purchase! Your payment for <strong>{enrollmentDetails.program_name || 'your selected program'}</strong> has been processed successfully.
+            </p>
+            
             {enrollmentDetails.child_name && (
-              <span> {enrollmentDetails.child_name} is now enrolled.</span>
+              <div className="bg-electric-blue/5 border border-electric-blue/20 rounded-lg p-4 mb-4">
+                <p className="font-nunito text-electric-blue font-medium">
+                  🎉 {enrollmentDetails.child_name} is now enrolled!
+                </p>
+              </div>
             )}
-            <br />
-            <br />You'll receive a confirmation email shortly with all the details.
-          </p>
+            
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <h3 className="font-fredoka font-semibold text-navy mb-2">What happens next?</h3>
+              <ul className="font-nunito text-sm text-gray-600 space-y-1">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                  You'll receive a confirmation email with all program details
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                  Our team will contact you with session schedules
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                  Check your dashboard for enrollment status updates
+                </li>
+              </ul>
+            </div>
+            
+            <p className="font-nunito text-gray-600 text-sm">
+              Questions? Contact us at <a href="mailto:hello@jumpstartsports.com.au" className="text-electric-blue hover:text-electric-blue/80">hello@jumpstartsports.com.au</a>
+            </p>
+          </div>
         )}
 
         {/* Form Submission Status */}

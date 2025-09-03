@@ -149,7 +149,7 @@ const Navbar: React.FC = () => {
                   </div>
                   {subscription && (
                     <span className="font-nunito text-xs text-electric-blue">
-                      {subscription.product_name || 'Active Plan'}
+                      ✓ {subscription.product_name || 'Active Plan'}
                     </span>
                   )}
                 </div>

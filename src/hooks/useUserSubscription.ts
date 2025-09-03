@@ -82,7 +82,7 @@ export function useUserSubscription() {
   const getProductNameByPriceId = (priceId: string | null): string | undefined => {
     if (!priceId) return undefined;
     const product = Object.values(products).find(p => p.priceId === priceId);
-    return product?.name;
+    return product?.name || 'Unknown Plan';
   };
 
   return {

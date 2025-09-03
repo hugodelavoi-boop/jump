@@ -4,6 +4,7 @@ import { Calendar, Clock, Users, Shield, Target, Bell, Sunrise, ArrowRight, Clip
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../contexts/ProductContext';
+import { useEffect } from 'react';
 
 const Programs: React.FC = () => {
   const navigate = useNavigate();
@@ -130,7 +131,7 @@ const Programs: React.FC = () => {
             {products.map((product) => (
               <div 
                 key={product.price_id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
               >
                 <div className="p-8">
                   <div className="flex items-start justify-between mb-4">
@@ -163,6 +164,32 @@ const Programs: React.FC = () => {
                     </p>
                   )}
                   
+                  <div className="mb-6">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-fredoka font-semibold text-sm text-navy mb-2">What's Included:</h4>
+                      <ul className="font-nunito text-sm text-gray-600 space-y-1">
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                          Professional coaching and supervision
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                          All sports equipment provided
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                          Safe and structured environment
+                        </li>
+                        {product.mode === 'subscription' && (
+                          <li className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                            Cancel anytime
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                  
                   <Button 
                     variant="primary"
                     className="w-full group"
@@ -177,6 +204,13 @@ const Programs: React.FC = () => {
               </div>
             ))}
           </div>
+          
+          {products.length === 0 && (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
+              <p className="font-nunito text-gray-600">Loading programs...</p>
+            </div>
+          )}
         </div>
       </section>
 

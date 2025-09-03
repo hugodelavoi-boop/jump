@@ -453,6 +453,30 @@ const EnrolNow: React.FC = () => {
                                   {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
                                 </span>
                               </div>
+                              
+                              {/* Additional product details */}
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    Professional coaching
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    All equipment included
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    Safe environment
+                                  </div>
+                                  {product.mode === 'subscription' && (
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Cancel anytime
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                               formData.program === product.price_id
@@ -466,6 +490,13 @@ const EnrolNow: React.FC = () => {
                           </div>
                         </label>
                       ))}
+                      
+                      {products.length === 0 && (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
+                          <p className="font-nunito text-gray-600">Loading programs...</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-4">

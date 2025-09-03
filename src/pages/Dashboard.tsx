@@ -83,7 +83,12 @@ const Dashboard: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                     <span className="font-nunito text-sm text-green-600">
-                      {subscription.product_name || 'Active Plan'}
+                      {subscription.product_name || 'Active Subscription'}
+                      {subscription.subscription_status && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({subscription.subscription_status})
+                        </span>
+                      )}
                     </span>
                   </div>
                 )}
@@ -173,36 +178,45 @@ const Dashboard: React.FC = () => {
               {!subscriptionLoading && (
                 <div className="bg-white rounded-2xl shadow-lg p-6">
                   <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
-                    Subscription Status
+                    Plan Status
                   </h3>
                   {subscription ? (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-5 h-5 text-green-500" />
                         <span className="font-nunito text-green-600 font-medium">
-                          {subscription.product_name || 'Active Plan'}
+                          {subscription.product_name || 'Active Subscription'}
                         </span>
                       </div>
-                      <p className="font-nunito text-sm text-gray-600">
-                        Status: {subscription.subscription_status}
-                      </p>
+                      {subscription.subscription_status && (
+                        <p className="font-nunito text-sm text-gray-600">
+                          Status: <span className="capitalize">{subscription.subscription_status.replace('_', ' ')}</span>
+                        </p>
+                      )}
                       {subscription.current_period_end && (
                         <p className="font-nunito text-sm text-gray-600">
                           Next billing: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
                         </p>
                       )}
+                      {subscription.cancel_at_period_end && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                          <p className="font-nunito text-sm text-yellow-800">
+                            ⚠️ Your subscription will cancel at the end of the current period.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-4">
                       <p className="font-nunito text-gray-500 mb-4">
-                        No active subscription
+                        No active plan
                       </p>
                       <Button
                         variant="primary"
                         size="sm"
                         onClick={() => navigate('/enrol')}
                       >
-                        Subscribe Now
+                        Choose a Plan
                       </Button>
                     </div>
                   )}
