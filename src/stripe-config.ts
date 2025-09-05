@@ -1,5 +1,13 @@
 // Stripe product configuration
 export const products = {
+  beldonTrial: {
+    id: 'prod_SzCm4sL2Aw6fZk',
+    priceId: 'price_1S3EMdCAVPkj28mpISfKIsJJ',
+    name: 'Beldon Primary Trial',
+    description: 'Free trial session at Beldon Primary School for new students to experience Jump Start Sports programs.',
+    mode: 'payment' as const,
+    price: 'A$0.00',
+  },
   termProgram: {
     id: 'prod_SP6OmNrjxRlxri',
     priceId: 'price_1RUIBnCAVPkj28mplqiW2xCu',
