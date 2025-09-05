@@ -201,84 +201,65 @@ const Programs: React.FC = () => {
                 </div>
               </div>
             )) : (
-              // Fallback static products if database products aren't loaded
-              Object.values(import('../stripe-config').then(m => m.products)).map((product: any) => (
-                <div key={product.priceId} className="bg-white rounded-2xl shadow-lg p-8">
-                  <h3 className="font-fredoka font-bold text-2xl text-navy mb-4">{product.name}</h3>
-                  <p className="font-nunito text-3xl font-bold text-electric-blue mb-4">{product.price}</p>
-                  <p className="font-nunito text-gray-600 mb-6">{product.description}</p>
-                  <Button 
-                    variant="primary"
-                    className="w-full group"
-                    onClick={() => navigate('/enrol')}
-                  >
-                    <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                      Enrol Now
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </Button>
-                </div>
-              )) : (
-                // Static fallback products
-                Object.values(staticProducts).map((product) => (
-                  <div 
-                    key={product.priceId}
-                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
-                  >
-                    <div className="p-8">
-                      <div className="flex items-start justify-between mb-4">
-                        <h3 className="font-fredoka font-bold text-2xl text-navy">
-                          {product.name}
-                        </h3>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
-                          One-time
-                        </span>
-                      </div>
-                      
-                      <div className="mb-4">
-                        <span className="font-nunito text-3xl font-bold text-electric-blue">
-                          {product.price}
-                        </span>
-                      </div>
-                      
-                      <p className="font-nunito text-gray-600 mb-6">
-                        {product.description}
-                      </p>
-                      
-                      <div className="mb-6">
-                        <div className="bg-gray-50 rounded-lg p-4">
-                          <h4 className="font-fredoka font-semibold text-sm text-navy mb-2">What's Included:</h4>
-                          <ul className="font-nunito text-sm text-gray-600 space-y-1">
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                              Professional coaching and supervision
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                              All sports equipment provided
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                              Safe and structured environment
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        variant="primary"
-                        className="w-full group"
-                        onClick={() => navigate('/enrol')}
-                      >
-                        <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                          Enrol Now
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
-                      </Button>
+              // Static fallback products
+              Object.values(staticProducts).map((product) => (
+                <div 
+                  key={product.priceId}
+                  className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
+                >
+                  <div className="p-8">
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="font-fredoka font-bold text-2xl text-navy">
+                        {product.name}
+                      </h3>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
+                        One-time
+                      </span>
                     </div>
+                    
+                    <div className="mb-4">
+                      <span className="font-nunito text-3xl font-bold text-electric-blue">
+                        {product.price}
+                      </span>
+                    </div>
+                    
+                    <p className="font-nunito text-gray-600 mb-6">
+                      {product.description}
+                    </p>
+                    
+                    <div className="mb-6">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h4 className="font-fredoka font-semibold text-sm text-navy mb-2">What's Included:</h4>
+                        <ul className="font-nunito text-sm text-gray-600 space-y-1">
+                          <li className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                            Professional coaching and supervision
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                            All sports equipment provided
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                            Safe and structured environment
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      variant="primary"
+                      className="w-full group"
+                      onClick={() => navigate('/enrol')}
+                    >
+                      <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
+                        Enrol Now
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </Button>
                   </div>
-                ))
-              )
+                </div>
+              ))
             )}
           </div>
           
