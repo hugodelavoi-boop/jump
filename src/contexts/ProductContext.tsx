@@ -44,6 +44,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         .from('active_products')
         .select('*')
         .eq('active', true)
+        .is('deleted_at', null)
         .order('name', { ascending: true });
 
       if (fetchError) {
