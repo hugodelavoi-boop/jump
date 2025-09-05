@@ -7,7 +7,7 @@ interface Product {
   name: string;
   description: string | null;
   mode: string | null;
-  price?: string;
+  price_display?: string;
 }
 
 interface ProductContextType {

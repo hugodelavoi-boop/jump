@@ -9,6 +9,7 @@ import { createCheckoutSession } from '../lib/stripe';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
 import { User, Baby, School, Heart, Camera, Car, CheckCircle2, AlertCircle } from 'lucide-react';
+import { products as staticProducts } from '../stripe-config';
 
 interface FormData {
   parentName: string;
@@ -113,9 +114,10 @@ const EnrolNow: React.FC = () => {
     try {
       // Find the selected product to get the mode
       const selectedProduct = products.find(p => p.price_id === formData.program);
+      const staticProduct = Object.values(staticProducts).find(p => p.priceId === formData.program);
       const mode = selectedProduct?.mode === 'subscription' ? 'subscription' : 'payment';
 
-      console.log('Selected product:', selectedProduct);
+      console.log('Selected product:', selectedProduct || staticProduct);
       console.log('Payment mode:', mode);
 
       // Create checkout session
@@ -147,8 +149,8 @@ const EnrolNow: React.FC = () => {
         childSchool: formData.childSchool,
         medicalInfo: formData.medicalInfo,
         program: formData.program,
-        programName: selectedProduct?.name || 'Selected Program',
-        paymentType: selectedProduct?.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment',
+        programName: selectedProduct?.name || staticProduct?.name || 'Selected Program',
+        paymentType: (selectedProduct?.mode || staticProduct?.mode) === 'subscription' ? 'Recurring Payment' : 'One-time Payment',
         requiresPickup: formData.requiresPickup,
         photoPermission: formData.photoPermission,
         sessionId: sessionId,
@@ -418,7 +420,7 @@ const EnrolNow: React.FC = () => {
                     </div>
 
                     <div className="space-y-4">
-                      {products.map((product) => (
+                      {products.length > 0 ? products.map((product) => (
                         <label
                           key={product.price_id}
                           className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
@@ -489,7 +491,77 @@ const EnrolNow: React.FC = () => {
                             </div>
                           </div>
                         </label>
-                      ))}
+                      )) : (
+                        // Static fallback products
+                        Object.values(staticProducts).map((product) => (
+                          <label
+                            key={product.priceId}
+                            className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                              formData.program === product.priceId
+                                ? 'border-electric-blue bg-electric-blue/5'
+                                : 'border-gray-200 hover:border-electric-blue/50'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="program"
+                              value={product.priceId}
+                              checked={formData.program === product.priceId}
+                              onChange={handleInputChange}
+                              className="sr-only"
+                            />
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
+                                  {product.name}
+                                </h3>
+                                <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
+                                  {product.price}
+                                </p>
+                                <p className="font-nunito text-gray-600 text-sm">
+                                  {product.description}
+                                </p>
+                                <div className="mt-2">
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
+                                    One-time Payment
+                                  </span>
+                                </div>
+                                
+                                {/* Additional product details */}
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Professional coaching
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      All equipment included
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Safe environment
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Secure payment
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                formData.program === product.priceId
+                                  ? 'border-electric-blue bg-electric-blue'
+                                  : 'border-gray-300'
+                              }`}>
+                                {formData.program === product.priceId && (
+                                  <div className="w-2 h-2 bg-white rounded-full" />
+                                )}
+                              </div>
+                            </div>
+                          </label>
+                        ))
+                      )}
                       
                       {products.length === 0 && (
                         <div className="text-center py-8">
@@ -594,7 +666,9 @@ const EnrolNow: React.FC = () => {
                         <div>
                           <span className="font-nunito font-medium text-gray-600">Program:</span>
                           <p className="font-nunito text-navy">
-                            {products.find(p => p.price_id === formData.program)?.name || 'Selected Program'}
+                            {products.find(p => p.price_id === formData.program)?.name || 
+                             Object.values(staticProducts).find(p => p.priceId === formData.program)?.name || 
+                             'Selected Program'}
                           </p>
                         </div>
                       </div>
