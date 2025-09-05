@@ -31,8 +31,9 @@ function corsResponse(body: string | object | null, status = 200) {
 
 Deno.serve(async (req) => {
   try {
-    console.log('Stripe checkout function called');
-    console.log('Request method:', req.method);
+    console.log('🚀 Stripe checkout function called');
+    console.log('📡 Request method:', req.method);
+    console.log('🕐 Timestamp:', new Date().toISOString());
     
     if (req.method === 'OPTIONS') {
       return corsResponse({}, 204);
@@ -42,27 +43,41 @@ Deno.serve(async (req) => {
       return corsResponse({ error: 'Method not allowed' }, 405);
     }
 
+    // Validate environment variables
+    if (!stripeSecret) {
+      console.error('❌ STRIPE_SECRET_KEY not configured');
+      return corsResponse({ error: 'Payment service not configured' }, 500);
+    }
+
     const requestBody = await req.text();
-    console.log('Request body:', requestBody);
+    console.log('📤 Request body length:', requestBody.length);
     
     let parsedBody;
     try {
       parsedBody = JSON.parse(requestBody);
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
+      console.error('❌ JSON parse error:', parseError);
       return corsResponse({ error: 'Invalid JSON in request body' }, 400);
     }
     
     const { price_id, success_url, cancel_url, mode } = parsedBody;
     const { customer_email, customer_name, child_name } = parsedBody;
-    console.log('Parsed parameters:', { price_id, success_url, cancel_url, mode });
+    console.log('📋 Parsed parameters:', { 
+      price_id, 
+      success_url, 
+      cancel_url, 
+      mode,
+      customer_email: !!customer_email,
+      customer_name: !!customer_name,
+      child_name: !!child_name
+    });
     
     // Get user from JWT token
     const authHeader = req.headers.get('Authorization');
-    console.log('Auth header present:', !!authHeader);
+    console.log('🔐 Auth header present:', !!authHeader);
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error('Missing or invalid authorization header');
+      console.error('❌ Missing or invalid authorization header');
       return corsResponse({ error: 'Authorization required' }, 401);
     }
 
@@ -78,7 +93,7 @@ Deno.serve(async (req) => {
     );
 
     if (validationError) {
-      console.error('Validation error:', validationError);
+      console.error('❌ Validation error:', validationError);
       return corsResponse({ error: validationError }, 400);
     }
 
@@ -91,13 +106,24 @@ Deno.serve(async (req) => {
       // In production, you should properly validate the JWT
       const payload = JSON.parse(atob(token.split('.')[1]));
       userEmail = payload.email;
-      console.log('User email from token:', userEmail);
+      console.log('👤 User email from token:', userEmail);
     } catch (e) {
-      console.error('Token parsing error:', e);
+      console.error('❌ Token parsing error:', e);
       return corsResponse({ error: 'Invalid token' }, 401);
     }
     
-    console.log('Creating Stripe checkout session...');
+    console.log('💳 Creating Stripe checkout session...');
+    
+    // Verify price exists before creating session
+    try {
+      const price = await stripe.prices.retrieve(price_id);
+      console.log('✅ Price verified:', price.id, price.unit_amount);
+    } catch (priceError) {
+      console.error('❌ Price verification failed:', priceError);
+      return corsResponse({ 
+        error: `Invalid price ID: ${price_id}. Please refresh the page and try again.` 
+      }, 400);
+    }
     
     // Prepare customer data for better receipts
     const customerData: any = {};
@@ -136,6 +162,7 @@ Deno.serve(async (req) => {
       cancel_url,
       ...customerData,
       metadata,
+      expires_at: Math.floor(Date.now() / 1000) + (30 * 60), // 30 minutes
       payment_intent_data: mode === 'payment' ? {
         description: transactionDescription,
         metadata,
@@ -154,13 +181,26 @@ Deno.serve(async (req) => {
       } : undefined,
     });
 
-    console.log('Stripe session created successfully:', session.id);
+    console.log('✅ Stripe session created successfully:', session.id);
+    console.log('🔗 Checkout URL:', session.url);
     return corsResponse({ sessionId: session.id, url: session.url });
   } catch (error: any) {
-    console.error('Checkout function error:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    return corsResponse({ error: error.message }, 500);
+    console.error('❌ Checkout function error:', error);
+    console.error('❌ Error message:', error.message);
+    console.error('❌ Error type:', error.type);
+    console.error('❌ Error code:', error.code);
+    
+    // Provide user-friendly error messages
+    let userMessage = error.message;
+    if (error.type === 'StripeInvalidRequestError') {
+      if (error.message.includes('No such price')) {
+        userMessage = 'The selected program is no longer available. Please refresh the page and try again.';
+      } else if (error.message.includes('No such product')) {
+        userMessage = 'The selected program is not available. Please contact support.';
+      }
+    }
+    
+    return corsResponse({ error: userMessage }, 500);
   }
 });
 

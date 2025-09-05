@@ -36,50 +36,75 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
       
-      console.log('🔄 Force refreshing products from Supabase...');
+      console.log('🔄 Fetching products from Supabase...');
       console.log('🕐 Timestamp:', new Date().toISOString());
 
-      // Fetch products from Supabase (synced from Stripe via webhook)
+      // Check if Supabase is properly configured
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+
+      // Fetch products from Supabase with comprehensive filtering
       const { data, error: fetchError } = await supabase
         .from('active_products')
         .select('*')
         .eq('active', true)
         .is('deleted_at', null)
+        .not('price_id', 'is', null)
+        .not('name', 'is', null)
         .order('name', { ascending: true });
 
       if (fetchError) {
-        console.error('Error fetching products:', fetchError);
-        throw fetchError;
+        console.error('❌ Database error fetching products:', fetchError);
+        throw new Error(`Database error: ${fetchError.message}`);
       }
 
       console.log('📊 Raw product data from database:', data);
       console.log('📈 Number of products found:', data?.length || 0);
       
-      // Log the last updated timestamps
-      if (data && data.length > 0) {
-        const timestamps = data.map(p => ({ name: p.name, updated_at: p.updated_at }));
-        console.log('📅 Product update timestamps:', timestamps);
-        
-        const mostRecent = data.reduce((latest, current) => {
-          return new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest;
-        });
-        console.log(`🕐 Most recently updated product: ${mostRecent.name} at ${mostRecent.updated_at}`);
+      if (!data || data.length === 0) {
+        console.warn('⚠️ No products found in database');
+        setProducts([]);
+        return;
       }
+      
+      // Log the last updated timestamps
+      const timestamps = data.map(p => ({ name: p.name, updated_at: p.updated_at }));
+      console.log('📅 Product update timestamps:', timestamps);
+      
+      const mostRecent = data.reduce((latest, current) => {
+        return new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest;
+      });
+      console.log(`🕐 Most recently updated product: ${mostRecent.name} at ${mostRecent.updated_at}`);
 
-      const productList: Product[] = (data || []).map(product => ({
-        id: product.product_id,
-        price_id: product.price_id || '',
-        name: product.name,
-        description: product.description,
-        mode: product.mode,
-        price: product.price_display || 'Contact for pricing',
-      }));
+      // Validate and process products
+      const productList: Product[] = data
+        .filter(product => {
+          // Additional validation
+          if (!product.price_id || !product.name) {
+            console.warn('⚠️ Skipping invalid product:', product);
+            return false;
+          }
+          return true;
+        })
+        .map(product => ({
+          id: product.product_id,
+          price_id: product.price_id,
+          name: product.name,
+          description: product.description,
+          mode: product.mode || 'payment',
+          price_display: product.price_display || 'Contact for pricing',
+        }));
       
       console.log('✅ Processed product list:', productList);
       setProducts(productList);
     } catch (err) {
-      console.error('Error fetching products:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch products');
+      console.error('❌ Error fetching products:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch products';
+      setError(errorMessage);
+      
+      // Set empty products array on error to prevent undefined behavior
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -87,6 +112,26 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     fetchProducts();
+    
+    // Set up real-time subscription for product changes
+    const channel = supabase
+      .channel('product_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'stripe_products' 
+        }, 
+        (payload) => {
+          console.log('🔄 Product change detected:', payload);
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, []);
 
   return (

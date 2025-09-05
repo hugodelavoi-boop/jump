@@ -97,6 +97,7 @@ const EnrolNow: React.FC = () => {
     console.log('Starting enrollment submission...');
     console.log('Form data:', formData);
     console.log('Session:', session);
+    console.log('Available products:', products);
 
     if (!validateStep(3)) {
       setError('Please accept the terms and conditions');
@@ -108,13 +109,37 @@ const EnrolNow: React.FC = () => {
       return;
     }
 
+    // Validate selected program exists
+    const selectedProduct = products.find(p => p.price_id === formData.program);
+    const staticProduct = Object.values(staticProducts).find(p => p.priceId === formData.program);
+    
+    if (!selectedProduct && !staticProduct) {
+      setError('Selected program is no longer available. Please refresh the page and try again.');
+      return;
+    }
+
+    // Validate required form fields
+    const requiredFields = {
+      parentName: 'Parent name',
+      email: 'Email address',
+      mobile: 'Mobile number',
+      childName: 'Child name',
+      childAge: 'Child age',
+      childSchool: 'Child school',
+      program: 'Program selection'
+    };
+
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!formData[field as keyof FormData] || formData[field as keyof FormData] === '') {
+        setError(`${label} is required`);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Find the selected product to get the mode
-      const selectedProduct = products.find(p => p.price_id === formData.program);
-      const staticProduct = Object.values(staticProducts).find(p => p.priceId === formData.program);
       const mode = selectedProduct?.mode === 'subscription' ? 'subscription' : 'payment';
 
       console.log('Selected product:', selectedProduct || staticProduct);
@@ -124,6 +149,11 @@ const EnrolNow: React.FC = () => {
       console.log('Creating checkout session...');
       const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/enrol`;
+
+      // Validate URLs
+      if (!successUrl.includes('{CHECKOUT_SESSION_ID}')) {
+        throw new Error('Invalid success URL format');
+      }
 
       const { url: checkoutUrl, sessionId } = await createCheckoutSession(
         formData.program,
@@ -135,6 +165,10 @@ const EnrolNow: React.FC = () => {
         formData.parentName,
         formData.childName
       );
+
+      if (!checkoutUrl || !sessionId) {
+        throw new Error('Invalid response from checkout service');
+      }
 
       console.log('Checkout URL created:', checkoutUrl);
       console.log('Session ID:', sessionId);
@@ -163,30 +197,51 @@ const EnrolNow: React.FC = () => {
 
       // Create enrollment record in database with the actual session ID
       console.log('Creating enrollment record...');
-      await createEnrollment({
-        parentName: formData.parentName,
-        email: formData.email,
-        mobile: formData.mobile,
-        childName: formData.childName,
-        childAge: formData.childAge,
-        childSchool: formData.childSchool,
-        medicalInfo: formData.medicalInfo,
-        program: formData.program,
-        requiresPickup: formData.requiresPickup,
-        photoPermission: formData.photoPermission,
-      }, session.user.id, sessionId);
+      try {
+        await createEnrollment({
+          parentName: formData.parentName,
+          email: formData.email,
+          mobile: formData.mobile,
+          childName: formData.childName,
+          childAge: formData.childAge,
+          childSchool: formData.childSchool,
+          medicalInfo: formData.medicalInfo,
+          program: formData.program,
+          requiresPickup: formData.requiresPickup,
+          photoPermission: formData.photoPermission,
+        }, session.user.id, sessionId);
+        console.log('✅ Enrollment created successfully');
+      } catch (enrollmentError) {
+        console.error('⚠️ Enrollment creation failed, but continuing with checkout:', enrollmentError);
+        // Don't fail the entire process if enrollment creation fails
+      }
 
-      console.log('Enrollment created successfully');
       setSuccess(true);
 
       // Redirect to checkout
       setTimeout(() => {
+        console.log('🔄 Redirecting to checkout:', checkoutUrl);
         window.location.href = checkoutUrl;
       }, 2000);
 
     } catch (err) {
       console.error('Enrollment error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create enrollment');
+      
+      let errorMessage = 'Failed to create enrollment';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        
+        // Provide more user-friendly error messages
+        if (err.message.includes('No such price')) {
+          errorMessage = 'The selected program is no longer available. Please refresh the page and try again.';
+        } else if (err.message.includes('Network error')) {
+          errorMessage = 'Connection error. Please check your internet connection and try again.';
+        } else if (err.message.includes('Authorization')) {
+          errorMessage = 'Session expired. Please refresh the page and sign in again.';
+        }
+      }
+      
+      setError(errorMessage);
       setSuccess(false);
     } finally {
       setIsSubmitting(false);
@@ -454,7 +509,7 @@ const EnrolNow: React.FC = () => {
                               )}
                               <div className="mt-2">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                  One-time Payment
+                                  {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
                                 </span>
                               </div>
                               
@@ -491,7 +546,7 @@ const EnrolNow: React.FC = () => {
                             </div>
                           </div>
                         </label>
-                      )) : (
+                      )) : products.length === 0 && !productsLoading ? (
                         // Static fallback products
                         Object.values(staticProducts).map((product) => (
                           <label
@@ -561,12 +616,24 @@ const EnrolNow: React.FC = () => {
                             </div>
                           </label>
                         ))
-                      )}
+                      ) : null}
                       
-                      {products.length === 0 && (
+                      {productsLoading && (
                         <div className="text-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
                           <p className="font-nunito text-gray-600">Loading programs...</p>
+                        </div>
+                      )}
+                      
+                      {!productsLoading && products.length === 0 && Object.values(staticProducts).length === 0 && (
+                        <div className="text-center py-8">
+                          <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
+                          <button
+                            onClick={() => window.location.reload()}
+                            className="text-electric-blue hover:text-electric-blue/80 transition-colors"
+                          >
+                            Refresh page
+                          </button>
                         </div>
                       )}
                     </div>
