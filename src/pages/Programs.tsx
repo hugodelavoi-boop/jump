@@ -137,8 +137,8 @@ const Programs: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {products.map((product) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {products.length > 0 ? products.map((product) => (
               <div 
                 key={product.price_id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
@@ -148,21 +148,16 @@ const Programs: React.FC = () => {
                     <h3 className="font-fredoka font-bold text-2xl text-navy">
                       {product.name}
                     </h3>
-                    {product.mode === 'subscription' && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
-                        Recurring
-                      </span>
-                    )}
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
+                      One-time
+                    </span>
                   </div>
                   
-                  {product.price && (
+                  {product.price_display && (
                     <div className="mb-4">
                       <span className="font-nunito text-3xl font-bold text-electric-blue">
-                        {product.price}
+                        {product.price_display}
                       </span>
-                      {product.mode === 'subscription' && (
-                        <span className="font-nunito text-gray-600 ml-1">/month</span>
-                      )}
                     </div>
                   )}
                   
@@ -188,12 +183,6 @@ const Programs: React.FC = () => {
                           <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
                           Safe and structured environment
                         </li>
-                        {product.mode === 'subscription' && (
-                          <li className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                            Cancel anytime
-                          </li>
-                        )}
                       </ul>
                     </div>
                   </div>
@@ -210,10 +199,19 @@ const Programs: React.FC = () => {
                   </Button>
                 </div>
               </div>
-            ))}
+            )) : (
+              // Fallback static products if database products aren't loaded
+              Object.values(import('../stripe-config').then(m => m.products)).map((product: any) => (
+                <div key={product.priceId} className="bg-white rounded-2xl shadow-lg p-8">
+                  <h3 className="font-fredoka font-bold text-2xl text-navy mb-4">{product.name}</h3>
+                  <p className="font-nunito text-3xl font-bold text-electric-blue mb-4">{product.price}</p>
+                  <p className="font-nunito text-gray-600 mb-6">{product.description}</p>
+                </div>
+              ))
+            )}
           </div>
           
-          {products.length === 0 && (
+          {products.length === 0 && !refreshKey && (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
               <p className="font-nunito text-gray-600">Loading programs...</p>

@@ -77,16 +77,8 @@ export async function createEnrollmentCheckout(
   accessToken: string
 ): Promise<string> {
   try {
-    // Determine mode based on the selected product
-    // Fetch the product from Supabase to get the mode
-    const { data: product } = await supabase
-      .from('active_products')
-      .select('mode')
-      .eq('price_id', enrollmentData.program)
-      .single();
-    
-    const selectedProduct = product;
-    const mode = selectedProduct?.mode || 'payment';
+    // All products are one-time payments
+    const mode = 'payment';
 
     // Create checkout session
     const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;

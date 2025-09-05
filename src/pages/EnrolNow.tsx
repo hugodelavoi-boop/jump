@@ -440,10 +440,9 @@ const EnrolNow: React.FC = () => {
                               <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
                                 {product.name}
                               </h3>
-                              {product.price && (
+                              {product.price_display && (
                                 <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
-                                  {product.price}
-                                  {product.mode === 'subscription' && <span className="text-sm text-gray-600 ml-1">/month</span>}
+                                  {product.price_display}
                                 </p>
                               )}
                               {product.description && (
@@ -452,11 +451,9 @@ const EnrolNow: React.FC = () => {
                                 </p>
                               )}
                               <div className="mt-2">
-                                {product.mode === 'subscription' && (
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                    Recurring
-                                  </span>
-                                )}
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
+                                  One-time Payment
+                                </span>
                               </div>
                               
                               {/* Additional product details */}
@@ -474,12 +471,10 @@ const EnrolNow: React.FC = () => {
                                     <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
                                     Safe environment
                                   </div>
-                                  {product.mode === 'subscription' && (
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Cancel anytime
-                                    </div>
-                                  )}
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    Secure payment
+                                  </div>
                                 </div>
                               </div>
                             </div>

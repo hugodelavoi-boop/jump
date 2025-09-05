@@ -175,49 +175,136 @@ const Dashboard: React.FC = () => {
             {/* Quick Actions */}
             <div className="space-y-6">
               {/* Subscription Status */}
-              {!subscriptionLoading && (
+              {!subscriptionLoading && subscription && (
                 <div className="bg-white rounded-2xl shadow-lg p-6">
                   <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
-                    Plan Status
+                    Active Plan
                   </h3>
-                  {subscription ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
-                        <span className="font-nunito text-green-600 font-medium">
-                          {subscription.product_name || 'Active Subscription'}
-                        </span>
-                      </div>
-                      {subscription.subscription_status && (
-                        <p className="font-nunito text-sm text-gray-600">
-                          Status: <span className="capitalize">{subscription.subscription_status.replace('_', ' ')}</span>
-                        </p>
-                      )}
-                      {subscription.current_period_end && (
-                        <p className="font-nunito text-sm text-gray-600">
-                          Next billing: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
-                        </p>
-                      )}
-                      {subscription.cancel_at_period_end && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                          <p className="font-nunito text-sm text-yellow-800">
-                            ⚠️ Your subscription will cancel at the end of the current period.
-                          </p>
-                        </div>
-                      )}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <span className="font-nunito text-green-600 font-medium">
+                        {subscription.product_name || 'Active Plan'}
+                      </span>
                     </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="font-nunito text-gray-500 mb-4">
-                        No active plan
+                    {subscription.subscription_status && (
+                      <p className="font-nunito text-sm text-gray-600">
+                        Status: <span className="capitalize">{subscription.subscription_status.replace('_', ' ')}</span>
                       </p>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => navigate('/enrol')}
-                      >
-                        Choose a Plan
-                      </Button>
+                    )}
+                    {subscription.current_period_end && (
+                      <p className="font-nunito text-sm text-gray-600">
+                        Valid until: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
+                      </p>
+                    )}
+                    {subscription.cancel_at_period_end && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p className="font-nunito text-sm text-yellow-800">
+                          ⚠️ Your plan will expire at the end of the current period.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!subscriptionLoading && !subscription && (
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
+                    No Active Plan
+                  </h3>
+                  <div className="text-center py-4">
+                    <p className="font-nunito text-gray-500 mb-4">
+                      You don't have any active enrollments
+                    </p>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => navigate('/enrol')}
+                    >
+                      Enrol Now
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {subscriptionLoading && (
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
+                  Recent Orders
+                </h3>
+                <div className="text-center py-4">
+                  <p className="font-nunito text-gray-500 text-sm">
+                    Your recent purchases will appear here
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => navigate('/enrol')}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-electric-blue/5 hover:bg-electric-blue/10 transition-colors text-left"
+                  >
+                    <FileText className="w-5 h-5 text-electric-blue" />
+                    <span className="font-nunito text-navy">New Enrollment</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/programs')}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                  >
+                    <Calendar className="w-5 h-5 text-gray-600" />
+                    <span className="font-nunito text-navy">View Programs</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/contact')}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                  >
+                    <Mail className="w-5 h-5 text-gray-600" />
+                    <span className="font-nunito text-navy">Contact Support</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-electric-blue rounded-2xl shadow-lg p-6 text-white">
+                <h3 className="font-fredoka font-semibold text-lg mb-4">
+                  Need Help?
+                </h3>
+                <p className="font-nunito text-white/90 mb-4 text-sm">
+                  Our team is here to help with any questions about programs, enrollment, or your account.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    <span>0478 163 609</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    <span>hello@jumpstartsports.com.au</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Dashboard;
+
                     </div>
                   )}
                 </div>
