@@ -2,7 +2,7 @@
 export const products = {
   beldonTrial: {
     id: 'prod_SzCm4sL2Aw6fZk',
-    priceId: 'price_1S3EMdCAVPkj28mpISfKIsJJ',
+    priceId: 'price_1RUIAfCAVPkj28mpKvB1jp0d', // Using Single Session price as temporary fix
     name: 'Jump Start Sports - Beldon Primary Trial',
     description: '17/9/25 3-4pm',
     mode: 'payment' as const,
