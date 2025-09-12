@@ -123,22 +123,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     fetchProducts();
     
-    // If no products are loaded after initial fetch, use static products
-    const fallbackTimer = setTimeout(() => {
-      if (products.length === 0 && !loading) {
-        console.log('🔄 No products loaded, using static fallback');
-        const fallbackProducts: Product[] = Object.values(staticProducts).map(product => ({
-          id: product.id,
-          price_id: product.priceId,
-          name: product.name,
-          description: product.description,
-          mode: product.mode,
-          price_display: product.price_display,
-        }));
-        setProducts(fallbackProducts);
-      }
-    }, 3000);
-
     // Set up real-time subscription for product changes
     const channel = supabase
       .channel('product_changes')
@@ -156,10 +140,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       .subscribe();
 
     return () => {
-      clearTimeout(fallbackTimer);
       channel.unsubscribe();
     };
-  }, [products.length, loading]);
 
   return (
     <ProductContext.Provider value={{ products, loading, error, refetch: fetchProducts }}>
