@@ -6,7 +6,7 @@ export const products = {
     name: 'Jump Start Sports - Beldon Primary Trial',
     description: '17/9/25 3-4pm',
     mode: 'payment' as const,
-    price: 'A$0.00',
+    price_display: 'A$0.00',
   },
   singleSession: {
     id: 'prod_SP6NiaaCeAa6CX',
@@ -14,7 +14,7 @@ export const products = {
     name: 'Jump Start Sports – Single Session Pass',
     description: 'One-time access to a fun, coach-led multi-sport session for children aged 5–12. Perfect for trial sessions, casual bookings, or make-up days. Each session includes a mix of energetic activities like soccer, dodgeball, AFL, and more — all in a safe, inclusive environment.',
     mode: 'payment' as const,
-    price: 'A$20.00',
+    price_display: 'A$20.00',
   },
 } as const;
 

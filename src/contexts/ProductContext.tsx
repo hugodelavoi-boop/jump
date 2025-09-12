@@ -94,7 +94,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           name: product.name,
           description: product.description,
           mode: product.mode || 'payment',
-          price_display: product.price_display || 'Contact for pricing',
+          price_display: product.price_display,
         }));
       
       console.log('✅ Processed product list:', productList);
@@ -112,7 +112,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         name: product.name,
         description: product.description,
         mode: product.mode,
-        price_display: product.price,
+        price_display: product.price_display,
       }));
       setProducts(fallbackProducts);
     } finally {
@@ -133,7 +133,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           name: product.name,
           description: product.description,
           mode: product.mode,
-          price_display: product.price,
+          price_display: product.price_display,
         }));
         setProducts(fallbackProducts);
       }
