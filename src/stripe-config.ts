@@ -3,18 +3,10 @@ export const products = {
   beldonTrial: {
     id: 'prod_SzCm4sL2Aw6fZk',
     priceId: 'price_1S3EMdCAVPkj28mpISfKIsJJ',
-    name: 'Beldon Primary Trial',
-    description: 'Free trial session at Beldon Primary School for new students to experience Jump Start Sports programs.',
+    name: 'Jump Start Sports - Beldon Primary Trial',
+    description: '17/9/25 3-4pm',
     mode: 'payment' as const,
     price: 'A$0.00',
-  },
-  termProgram: {
-    id: 'prod_SP6OmNrjxRlxri',
-    priceId: 'price_1RUIBnCAVPkj28mplqiW2xCu',
-    name: 'Jump Start Sports – Term Program Enrolment',
-    description: 'One-term enrolment for Jump Start Sports\' after-school multi-sport sessions. Designed for kids aged 5–12, focused on confidence, movement, and fun. Exact school and schedule to be confirmed.',
-    mode: 'payment' as const,
-    price: 'A$120.00',
   },
   singleSession: {
     id: 'prod_SP6NiaaCeAa6CX',

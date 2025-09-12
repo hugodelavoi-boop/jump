@@ -140,7 +140,7 @@ const EnrolNow: React.FC = () => {
     setError(null);
 
     try {
-      const mode = selectedProduct?.mode === 'subscription' ? 'subscription' : 'payment';
+      const mode = 'payment'; // All products are one-time payments
 
       console.log('Selected product:', selectedProduct || staticProduct);
       console.log('Payment mode:', mode);
@@ -184,7 +184,7 @@ const EnrolNow: React.FC = () => {
         medicalInfo: formData.medicalInfo,
         program: formData.program,
         programName: selectedProduct?.name || staticProduct?.name || 'Selected Program',
-        paymentType: (selectedProduct?.mode || staticProduct?.mode) === 'subscription' ? 'Recurring Payment' : 'One-time Payment',
+        paymentType: 'One-time Payment',
         requiresPickup: formData.requiresPickup,
         photoPermission: formData.photoPermission,
         sessionId: sessionId,
@@ -509,7 +509,7 @@ const EnrolNow: React.FC = () => {
                               )}
                               <div className="mt-2">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                  {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
+                                  One-time Payment
                                 </span>
                               </div>
                               

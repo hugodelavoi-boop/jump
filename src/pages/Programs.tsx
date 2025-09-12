@@ -149,6 +149,9 @@ const Programs: React.FC = () => {
                     <h3 className="font-fredoka font-bold text-2xl text-navy">
                       {product.name}
                     </h3>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
+                      One-time
+                    </span>
                   </div>
                   
                   {product.price_display && (
