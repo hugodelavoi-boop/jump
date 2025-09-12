@@ -142,6 +142,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => {
       channel.unsubscribe();
     };
+  }
+  )
 
   return (
     <ProductContext.Provider value={{ products, loading, error, refetch: fetchProducts }}>
