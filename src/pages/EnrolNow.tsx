@@ -29,16 +29,11 @@ const EnrolNow: React.FC = () => {
   const { products, loading: productsLoading } = useProducts();
   const { session } = useAuth();
   
-  // Force refresh products when component mounts
-  useEffect(() => {
-    console.log('🔄 EnrolNow page mounted, products available:', products.length);
-    console.log('📊 Current products:', products);
-  }, [products]);
-  
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showStaticProducts, setShowStaticProducts] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     parentName: '',
@@ -53,6 +48,29 @@ const EnrolNow: React.FC = () => {
     photoPermission: false,
     termsAccepted: false
   });
+
+  // Force show static products after timeout if database products don't load
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (productsLoading || products.length === 0) {
+        console.log('🔄 Timeout reached, showing static products');
+        setShowStaticProducts(true);
+      }
+    }, 2000); // Show static products after 2 seconds
+
+    return () => clearTimeout(timeout);
+  }, [productsLoading, products.length]);
+
+  // Get products to display (database products or static fallback)
+  const displayProducts = products.length > 0 ? products : 
+    (showStaticProducts ? Object.values(staticProducts).map(product => ({
+      id: product.id,
+      price_id: product.priceId,
+      name: product.name,
+      description: product.description,
+      mode: product.mode,
+      price_display: product.price_display,
+    })) : []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -110,7 +128,7 @@ const EnrolNow: React.FC = () => {
     }
 
     // Validate selected program exists
-    const selectedProduct = products.find(p => p.price_id === formData.program);
+    const selectedProduct = displayProducts.find(p => p.price_id === formData.program);
     const staticProduct = Object.values(staticProducts).find(p => p.priceId === formData.program);
     
     if (!selectedProduct && !staticProduct) {
@@ -140,7 +158,7 @@ const EnrolNow: React.FC = () => {
     setError(null);
 
     try {
-      const mode = selectedProduct?.mode === 'subscription' ? 'subscription' : 'payment';
+      const mode = 'payment'; // All products are one-time payments
 
       console.log('Selected product:', selectedProduct || staticProduct);
       console.log('Payment mode:', mode);
@@ -184,7 +202,7 @@ const EnrolNow: React.FC = () => {
         medicalInfo: formData.medicalInfo,
         program: formData.program,
         programName: selectedProduct?.name || staticProduct?.name || 'Selected Program',
-        paymentType: (selectedProduct?.mode || staticProduct?.mode) === 'subscription' ? 'Recurring Payment' : 'One-time Payment',
+        paymentType: 'One-time Payment',
         requiresPickup: formData.requiresPickup,
         photoPermission: formData.photoPermission,
         sessionId: sessionId,
@@ -248,12 +266,15 @@ const EnrolNow: React.FC = () => {
     }
   };
 
-  if (productsLoading) {
+  if (productsLoading && !showStaticProducts) {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue"></div>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
+            <p className="font-nunito text-gray-600">Loading enrollment form...</p>
+          </div>
         </div>
       </div>
     );
@@ -475,7 +496,7 @@ const EnrolNow: React.FC = () => {
                     </div>
 
                     <div className="space-y-4">
-                      {products.length > 0 ? products.map((product) => (
+                      {displayProducts.length > 0 ? displayProducts.map((product) => (
                         <label
                           key={product.price_id}
                           className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
@@ -509,7 +530,7 @@ const EnrolNow: React.FC = () => {
                               )}
                               <div className="mt-2">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                  {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
+                                  One-time Payment
                                 </span>
                               </div>
                               
@@ -546,86 +567,9 @@ const EnrolNow: React.FC = () => {
                             </div>
                           </div>
                         </label>
-                      )) : products.length === 0 && !productsLoading ? (
-                        // Static fallback products
-                        Object.values(staticProducts).map((product) => (
-                          <label
-                            key={product.priceId}
-                            className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-                              formData.program === product.priceId
-                                ? 'border-electric-blue bg-electric-blue/5'
-                                : 'border-gray-200 hover:border-electric-blue/50'
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="program"
-                              value={product.priceId}
-                              checked={formData.program === product.priceId}
-                              onChange={handleInputChange}
-                              className="sr-only"
-                            />
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
-                                  {product.name}
-                                </h3>
-                                <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
-                                  {product.price}
-                                </p>
-                                <p className="font-nunito text-gray-600 text-sm">
-                                  {product.description}
-                                </p>
-                                <div className="mt-2">
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                    One-time Payment
-                                  </span>
-                                </div>
-                                
-                                {/* Additional product details */}
-                                <div className="mt-3 pt-3 border-t border-gray-100">
-                                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Professional coaching
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      All equipment included
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Safe environment
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Secure payment
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                formData.program === product.priceId
-                                  ? 'border-electric-blue bg-electric-blue'
-                                  : 'border-gray-300'
-                              }`}>
-                                {formData.program === product.priceId && (
-                                  <div className="w-2 h-2 bg-white rounded-full" />
-                                )}
-                              </div>
-                            </div>
-                          </label>
-                        ))
-                      ) : null}
+                      )) : null}
                       
-                      {productsLoading && (
-                        <div className="text-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
-                          <p className="font-nunito text-gray-600">Loading programs...</p>
-                        </div>
-                      )}
-                      
-                      {!productsLoading && products.length === 0 && Object.values(staticProducts).length === 0 && (
+                      {displayProducts.length === 0 && !productsLoading && (
                         <div className="text-center py-8">
                           <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
                           <button
@@ -634,6 +578,14 @@ const EnrolNow: React.FC = () => {
                           >
                             Refresh page
                           </button>
+                        </div>
+                      )}
+                      
+                      {showStaticProducts && displayProducts.length > 0 && (
+                        <div className="text-center py-2">
+                          <p className="font-nunito text-xs text-gray-500">
+                            Using cached program data
+                          </p>
                         </div>
                       )}
                     </div>
@@ -733,7 +685,7 @@ const EnrolNow: React.FC = () => {
                         <div>
                           <span className="font-nunito font-medium text-gray-600">Program:</span>
                           <p className="font-nunito text-navy">
-                            {products.find(p => p.price_id === formData.program)?.name || 
+                            {displayProducts.find(p => p.price_id === formData.program)?.name || 
                              Object.values(staticProducts).find(p => p.priceId === formData.program)?.name || 
                              'Selected Program'}
                           </p>

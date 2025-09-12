@@ -62,8 +62,8 @@ Deno.serve(async (req) => {
       if (prices.data.length > 0) {
         const price = prices.data[0];
         
-        // Format price for display
-        let priceDisplay = 'Contact for pricing';
+        // Format price for display - only set if we have valid price data
+        let priceDisplay = null;
         if (price.unit_amount && price.currency) {
           const amount = price.unit_amount / 100; // Convert from cents
           const currency = price.currency.toUpperCase();
@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
           description: product.description,
           mode: price.type === 'recurring' ? 'subscription' : 'payment',
           active: product.active,
-          price_display: priceDisplay,
+          price_display: priceDisplay, // Will be null if no valid price data
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'product_id'
