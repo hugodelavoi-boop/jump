@@ -299,7 +299,7 @@ const Success: React.FC = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                  Contact us at hello@jumpstartsports.com.au for any questions
+                  Check your dashboard for enrollment status updates
                 </li>
               </ul>
             </div>
@@ -374,9 +374,9 @@ const Success: React.FC = () => {
           <Button
             variant="primary"
             className="w-full"
-            onClick={() => navigate('/contact')}
+            onClick={() => navigate('/dashboard')}
           >
-            Contact Us
+            View Dashboard
           </Button>
           
           <Button

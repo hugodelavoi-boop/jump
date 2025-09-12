@@ -77,7 +77,8 @@ export async function createEnrollmentCheckout(
   accessToken: string
 ): Promise<string> {
   try {
-    const mode = 'payment'; // All products are one-time payments
+    // All products are one-time payments
+    const mode = 'payment';
 
     // Create checkout session
     const successUrl = `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`;
