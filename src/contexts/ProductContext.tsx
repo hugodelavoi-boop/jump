@@ -32,9 +32,23 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Initialize with static products immediately
+  useEffect(() => {
+    const staticProductList: Product[] = Object.values(staticProducts).map(product => ({
+      id: product.id,
+      price_id: product.priceId,
+      name: product.name,
+      description: product.description,
+      mode: product.mode,
+      price_display: product.price_display,
+    }));
+    
+    console.log('🔄 Setting static products immediately:', staticProductList);
+    setProducts(staticProductList);
+    setLoading(false);
+  }, []);
   const fetchProducts = async () => {
     try {
-      setLoading(true);
       setError(null);
       
       console.log('🔄 Fetching products from Supabase...');
@@ -64,8 +78,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       console.log('📈 Number of products found:', data?.length || 0);
       
       if (!data || data.length === 0) {
-        console.warn('⚠️ No products found in database');
-        setProducts([]);
+        console.warn('⚠️ No products found in database, keeping static products');
         return;
       }
       
@@ -98,46 +111,28 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }));
       
       console.log('✅ Processed product list:', productList);
-      setProducts(productList);
+      
+      // Only update if we have valid products with prices
+      if (productList.length > 0 && productList.some(p => p.price_display)) {
+        console.log('✅ Updating with database products');
+        setProducts(productList);
+      } else {
+        console.log('⚠️ Database products missing price info, keeping static products');
+      }
     } catch (err) {
       console.error('❌ Error fetching products:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch products';
       setError(errorMessage);
       
-      // Fallback to static products on error
-      console.log('🔄 Falling back to static products');
-      const fallbackProducts: Product[] = Object.values(staticProducts).map(product => ({
-        id: product.id,
-        price_id: product.priceId,
-        name: product.name,
-        description: product.description,
-        mode: product.mode,
-        price_display: product.price,
-      }));
-      setProducts(fallbackProducts);
-    } finally {
-      setLoading(false);
+      console.log('🔄 Error occurred, keeping static products');
     }
   };
 
   useEffect(() => {
-    fetchProducts();
-    
-    // If no products are loaded after initial fetch, use static products
-    const fallbackTimer = setTimeout(() => {
-      if (products.length === 0 && !loading) {
-        console.log('🔄 No products loaded, using static fallback');
-        const fallbackProducts: Product[] = Object.values(staticProducts).map(product => ({
-          id: product.id,
-          price_id: product.priceId,
-          name: product.name,
-          description: product.description,
-          mode: product.mode,
-          price_display: product.price,
-        }));
-        setProducts(fallbackProducts);
-      }
-    }, 3000);
+    // Try to fetch from database after static products are loaded
+    setTimeout(() => {
+      fetchProducts();
+    }, 1000);
 
     // Set up real-time subscription for product changes
     const channel = supabase
@@ -156,10 +151,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       .subscribe();
 
     return () => {
-      clearTimeout(fallbackTimer);
       channel.unsubscribe();
     };
-  }, [products.length, loading]);
+  }, []);
 
   return (
     <ProductContext.Provider value={{ products, loading, error, refetch: fetchProducts }}>

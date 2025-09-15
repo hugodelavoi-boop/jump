@@ -139,7 +139,13 @@ const Programs: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {products.length > 0 ? products.map((product) => (
+            {products.length > 0 ? products.filter(product => 
+              // Filter out invalid products like "sd"
+              product.name && 
+              product.name.length > 2 && 
+              product.price_display &&
+              product.description
+            ).map((product) => (
               <div 
                 key={product.price_id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
@@ -213,84 +219,23 @@ const Programs: React.FC = () => {
                   </Button>
                 </div>
               </div>
-            )) : (
-              // Static fallback products
-              Object.values(staticProducts).map((product) => (
-                <div 
-                  key={product.priceId}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
-                >
-                  <div className="p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <h3 className="font-fredoka font-bold text-2xl text-navy">
-                        {product.name}
-                      </h3>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
-                        One-time
-                      </span>
-                    </div>
-                    
-                    <div className="mb-4">
-                      <span className="font-nunito text-3xl font-bold text-electric-blue">
-                        {product.price}
-                      </span>
-                      {product.price === 'A$0.00' && (
-                        <span className="ml-2 text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                          FREE
-                        </span>
-                      )}
-                    </div>
-                    
-                    <p className="font-nunito text-gray-600 mb-6">
-                      {product.description}
-                    </p>
-                    
-                    <div className="mb-6">
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="font-fredoka font-semibold text-sm text-navy mb-2">What's Included:</h4>
-                        <ul className="font-nunito text-sm text-gray-600 space-y-1">
-                          <li className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                            Professional coaching and supervision
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                            All sports equipment provided
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                            Safe and structured environment
-                          </li>
-                          {product.name.includes('Trial') && (
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                              <span className="text-green-600 font-medium">No commitment required</span>
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      variant={product.price === 'A$0.00' ? 'secondary' : 'primary'}
-                      className="w-full group"
-                      onClick={() => navigate('/enrol')}
-                    >
-                      <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                        {product.price === 'A$0.00' ? 'Book Free Trial' : 'Enrol Now'}
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
+            ))}
           </div>
           
-          {products.length === 0 && !refreshKey && (
+          {products.filter(product => 
+            product.name && 
+            product.name.length > 2 && 
+            product.price_display &&
+            product.description
+          ).length === 0 && (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
-              <p className="font-nunito text-gray-600">Loading programs...</p>
+              <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-electric-blue hover:text-electric-blue/80 transition-colors"
+              >
+                Refresh page
+              </button>
             </div>
           )}
         </div>
