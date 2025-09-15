@@ -502,11 +502,6 @@ const EnrolNow: React.FC = () => {
                                   {product.price_display}
                                 </p>
                               )}
-                              {product.description && (
-                                <p className="font-nunito text-gray-600 text-sm">
-                                  {product.description}
-                                </p>
-                              )}
                               <div className="mt-2">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
                                   {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
