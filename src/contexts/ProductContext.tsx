@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { products as staticProducts } from '../stripe-config';
 
 interface Product {
@@ -32,9 +31,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize with static products immediately
-  useEffect(() => {
-    const staticProductList: Product[] = Object.values(staticProducts).map(product => ({
+  // Convert static products to the expected format
+  const convertStaticProducts = (): Product[] => {
+    return Object.values(staticProducts).map(product => ({
       id: product.id,
       price_id: product.priceId,
       name: product.name,
@@ -42,121 +41,28 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       mode: product.mode,
       price_display: product.price_display,
     }));
-    
-    console.log('🔄 Setting static products immediately:', staticProductList);
-    setProducts(staticProductList);
-    setLoading(false);
-  }, []);
-  const fetchProducts = async () => {
-    try {
-      setError(null);
-      
-      console.log('🔄 Fetching products from Supabase...');
-      console.log('🕐 Timestamp:', new Date().toISOString());
-
-      // Check if Supabase is properly configured
-      if (!supabase) {
-        throw new Error('Supabase client not initialized');
-      }
-
-      // Fetch products from Supabase with comprehensive filtering
-      const { data, error: fetchError } = await supabase
-        .from('active_products')
-        .select('*')
-        .eq('active', true)
-        .is('deleted_at', null)
-        .not('price_id', 'is', null)
-        .not('name', 'is', null)
-        .order('name', { ascending: true });
-
-      if (fetchError) {
-        console.error('❌ Database error fetching products:', fetchError);
-        throw new Error(`Database error: ${fetchError.message}`);
-      }
-
-      console.log('📊 Raw product data from database:', data);
-      console.log('📈 Number of products found:', data?.length || 0);
-      
-      if (!data || data.length === 0) {
-        console.warn('⚠️ No products found in database, keeping static products');
-        return;
-      }
-      
-      // Log the last updated timestamps
-      const timestamps = data.map(p => ({ name: p.name, updated_at: p.updated_at }));
-      console.log('📅 Product update timestamps:', timestamps);
-      
-      const mostRecent = data.reduce((latest, current) => {
-        return new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest;
-      });
-      console.log(`🕐 Most recently updated product: ${mostRecent.name} at ${mostRecent.updated_at}`);
-
-      // Validate and process products
-      const productList: Product[] = data
-        .filter(product => {
-          // Additional validation
-          if (!product.price_id || !product.name) {
-            console.warn('⚠️ Skipping invalid product:', product);
-            return false;
-          }
-          return true;
-        })
-        .map(product => ({
-          id: product.product_id,
-          price_id: product.price_id,
-          name: product.name,
-          description: product.description,
-          mode: product.mode || 'payment',
-          price_display: product.price_display || 'Contact for pricing',
-        }));
-      
-      console.log('✅ Processed product list:', productList);
-      
-      // Only update if we have valid products with prices
-      if (productList.length > 0 && productList.some(p => p.price_display)) {
-        console.log('✅ Updating with database products');
-        setProducts(productList);
-      } else {
-        console.log('⚠️ Database products missing price info, keeping static products');
-      }
-    } catch (err) {
-      console.error('❌ Error fetching products:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch products';
-      setError(errorMessage);
-      
-      console.log('🔄 Error occurred, keeping static products');
-    }
   };
 
   useEffect(() => {
-    // Try to fetch from database after static products are loaded
-    setTimeout(() => {
-      fetchProducts();
-    }, 1000);
-
-    // Set up real-time subscription for product changes
-    const channel = supabase
-      .channel('product_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'stripe_products' 
-        }, 
-        (payload) => {
-          console.log('🔄 Product change detected:', payload);
-          fetchProducts();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
+    console.log('🔄 ProductProvider: Using STATIC PRODUCTS ONLY');
+    
+    // Always use static products, never fetch from database
+    const staticProductList = convertStaticProducts();
+    
+    console.log('✅ Static products loaded:', staticProductList);
+    setProducts(staticProductList);
+    setLoading(false);
+    setError(null);
   }, []);
 
+  const refetch = async () => {
+    console.log('🔄 Refetch called - using static products');
+    const staticProductList = convertStaticProducts();
+    setProducts(staticProductList);
+  };
+
   return (
-    <ProductContext.Provider value={{ products, loading, error, refetch: fetchProducts }}>
+    <ProductContext.Provider value={{ products, loading, error, refetch }}>
       {children}
     </ProductContext.Provider>
   );

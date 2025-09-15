@@ -453,7 +453,7 @@ const EnrolNow: React.FC = () => {
                     </div>
 
                     <div className="flex justify-end">
-                      <Button
+                          {product.price_display !== undefined && (
                         variant="primary"
                         onClick={nextStep}
                         disabled={!validateStep(1)}
@@ -502,6 +502,8 @@ const EnrolNow: React.FC = () => {
                                   {product.price_display}
                                 </p>
                               )}
+                                </p>
+                              )}
                               {product.description && (
                                 <p className="font-nunito text-gray-600 text-sm">
                                   {product.description}
@@ -544,7 +546,7 @@ const EnrolNow: React.FC = () => {
                               formData.program === product.price_id
                                 ? 'border-electric-blue bg-electric-blue'
                                 : 'border-gray-300'
-                            }`}>
+                            {product.price_display === 'A$0.00' && (
                               {formData.program === product.price_id && (
                                 <div className="w-2 h-2 bg-white rounded-full" />
                               )}
@@ -632,18 +634,6 @@ const EnrolNow: React.FC = () => {
                         <div className="text-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
                           <p className="font-nunito text-gray-600">Loading programs...</p>
-                        </div>
-                      )}
-                      
-                      {!productsLoading && products.length === 0 && Object.values(staticProducts).length === 0 && (
-                        <div className="text-center py-8">
-                          <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
-                          <button
-                            onClick={() => window.location.reload()}
-                            className="text-electric-blue hover:text-electric-blue/80 transition-colors"
-                          >
-                            Refresh page
-                          </button>
                         </div>
                       )}
                     </div>
@@ -750,60 +740,14 @@ const EnrolNow: React.FC = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Consent & Waiver */}
-                    <ConsentWaiver />
-
-                    {/* Terms Acceptance */}
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                      <label className="flex items-start gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="termsAccepted"
-                          checked={formData.termsAccepted}
-                          onChange={handleInputChange}
-                          className="mt-1 h-5 w-5 rounded border-gray-300 text-electric-blue focus:ring-electric-blue"
-                          required
-                        />
-                        <span className="font-nunito text-gray-700">
-                          I have read and agree to the{' '}
-                          <a href="/terms" target="_blank" className="text-electric-blue hover:text-electric-blue/80">
-                            Terms & Conditions
-                          </a>
-                          ,{' '}
-                          <a href="/privacy" target="_blank" className="text-electric-blue hover:text-electric-blue/80">
-                            Privacy Policy
-                          </a>
-                          , and the Consent & Waiver above. *
-                        </span>
-                      </label>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={prevStep}
-                        disabled={isSubmitting}
+                  )) : (
+                    <div className="text-center py-8 col-span-full">
+                      <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
+                      <button
+                        onClick={() => window.location.reload()}
+                        className="text-electric-blue hover:text-electric-blue/80 transition-colors"
                       >
-                        Previous
-                      </Button>
-                      <Button
-                        variant="primary"
-                        onClick={handleSubmit}
-                        disabled={!validateStep(3) || isSubmitting}
-                      >
-                        {isSubmitting ? 'Processing...' : 'Complete Enrollment'}
-                      </Button>
+                        Refresh page
+                      </button>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </AuthWrapper>
-        </div>
-      </section>
-    </div>
-  );
-};
-
-export default EnrolNow;
+                  )}
