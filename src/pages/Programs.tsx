@@ -139,15 +139,16 @@ const Programs: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {products.length > 0 ? products
-              .filter(product => 
-                // Filter out invalid products like "sd"
-                product.name && 
-                product.name.length > 2 && 
-                product.price_display &&
-                product.description
-              )
-              .map((product) => (
+            {products.length > 0 ? (
+              products
+                .filter(product => 
+                  // Filter out invalid products like "sd"
+                  product.name && 
+                  product.name.length > 2 && 
+                  product.price_display &&
+                  product.description
+                )
+                .map((product) => (
               <div 
                 key={product.price_id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
@@ -221,26 +222,19 @@ const Programs: React.FC = () => {
                   </Button>
                 </div>
               </div>
-            ))}
+                ))
+            ) : (
+              <div className="text-center py-12 col-span-full">
+                <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-electric-blue hover:text-electric-blue/80 transition-colors"
+                >
+                  Refresh page
+                </button>
+              </div>
+            )}
           </div>
-          
-          {products
-            .filter(product => 
-              product.name && 
-              product.name.length > 2 && 
-              product.price_display &&
-              product.description
-            ).length === 0 && (
-            <div className="text-center py-12">
-              <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="text-electric-blue hover:text-electric-blue/80 transition-colors"
-              >
-                Refresh page
-              </button>
-            </div>
-          )}
         </div>
       </section>
 
