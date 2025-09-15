@@ -501,9 +501,6 @@ const EnrolNow: React.FC = () => {
                                 <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
                                   {product.price_display}
                                 </p>
-                              )}
-                                </p>
-                              )}
                               {product.description && (
                                 <p className="font-nunito text-gray-600 text-sm">
                                   {product.description}
