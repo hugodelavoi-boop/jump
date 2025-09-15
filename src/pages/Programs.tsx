@@ -150,15 +150,22 @@ const Programs: React.FC = () => {
                       {product.name}
                     </h3>
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
-                      One-time
+                      {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
                     </span>
                   </div>
                   
                   {product.price_display && (
                     <div className="mb-4">
-                      <span className="font-nunito text-3xl font-bold text-electric-blue">
+                      <span className={`font-nunito text-3xl font-bold ${
+                        product.price_display === 'A$0.00' ? 'text-green-600' : 'text-electric-blue'
+                      }`}>
                         {product.price_display}
                       </span>
+                      {product.price_display === 'A$0.00' && (
+                        <span className="ml-2 text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                          FREE
+                        </span>
+                      )}
                     </div>
                   )}
                   
@@ -184,17 +191,23 @@ const Programs: React.FC = () => {
                           <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
                           Safe and structured environment
                         </li>
+                        {product.name.includes('Trial') && (
+                          <li className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                            <span className="text-green-600 font-medium">No commitment required</span>
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
                   
                   <Button 
-                    variant="primary"
+                    variant={product.price_display === 'A$0.00' ? 'secondary' : 'primary'}
                     className="w-full group"
                     onClick={() => navigate('/enrol')}
                   >
                     <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                      Enrol Now
+                      {product.price_display === 'A$0.00' ? 'Book Free Trial' : 'Enrol Now'}
                       <ArrowRight className="w-4 h-4" />
                     </span>
                   </Button>
@@ -221,6 +234,11 @@ const Programs: React.FC = () => {
                       <span className="font-nunito text-3xl font-bold text-electric-blue">
                         {product.price}
                       </span>
+                      {product.price === 'A$0.00' && (
+                        <span className="ml-2 text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                          FREE
+                        </span>
+                      )}
                     </div>
                     
                     <p className="font-nunito text-gray-600 mb-6">
@@ -243,17 +261,23 @@ const Programs: React.FC = () => {
                             <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
                             Safe and structured environment
                           </li>
+                          {product.name.includes('Trial') && (
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                              <span className="text-green-600 font-medium">No commitment required</span>
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </div>
                     
                     <Button 
-                      variant="primary"
+                      variant={product.price === 'A$0.00' ? 'secondary' : 'primary'}
                       className="w-full group"
                       onClick={() => navigate('/enrol')}
                     >
                       <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                        Enrol Now
+                        {product.price === 'A$0.00' ? 'Book Free Trial' : 'Enrol Now'}
                         <ArrowRight className="w-4 h-4" />
                       </span>
                     </Button>

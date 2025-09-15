@@ -80,9 +80,15 @@ export function useUserSubscription() {
 
   const getProductNameByPriceId = (priceId: string | null): string | undefined => {
     if (!priceId) return undefined;
-    // This will be resolved when the subscription data is fetched from the view
-    // which already includes the product name from the database
-    return 'Active Plan';
+    
+    // Map price IDs to product names
+    const priceToProductMap: Record<string, string> = {
+      'price_1S6TdOCAVPkj28mpxzTc1zcK': 'Term 4 2025 Program',
+      'price_1S3EMdCAVPkj28mpISfKIsJJ': 'Beldon Primary Trial',
+      'price_1RUIAfCAVPkj28mpKvB1jp0d': 'Single Session Pass',
+    };
+    
+    return priceToProductMap[priceId] || 'Active Plan';
   };
 
   return {

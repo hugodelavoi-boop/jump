@@ -511,6 +511,11 @@ const EnrolNow: React.FC = () => {
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
                                   {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
                                 </span>
+                                {product.price_display === 'A$0.00' && (
+                                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    FREE TRIAL
+                                  </span>
+                                )}
                               </div>
                               
                               {/* Additional product details */}
@@ -580,6 +585,11 @@ const EnrolNow: React.FC = () => {
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
                                     One-time Payment
                                   </span>
+                                  {product.price === 'A$0.00' && (
+                                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                      FREE TRIAL
+                                    </span>
+                                  )}
                                 </div>
                                 
                                 {/* Additional product details */}

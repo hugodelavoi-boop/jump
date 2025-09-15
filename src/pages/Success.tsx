@@ -278,6 +278,14 @@ const Success: React.FC = () => {
               Thank you for your purchase! Your payment for <strong>{enrollmentDetails.program_name || 'your selected program'}</strong> has been processed successfully.
             </p>
             
+            {enrollmentDetails.program_name?.includes('Trial') && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <p className="font-nunito text-green-800 font-medium text-center">
+                  🎉 Your free trial is confirmed! We'll be in touch with session details.
+                </p>
+              </div>
+            )}
+            
             {enrollmentDetails.child_name && (
               <div className="bg-electric-blue/5 border border-electric-blue/20 rounded-lg p-4 mb-4">
                 <p className="font-nunito text-electric-blue font-medium">
@@ -289,18 +297,37 @@ const Success: React.FC = () => {
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
               <h3 className="font-fredoka font-semibold text-navy mb-2">What happens next?</h3>
               <ul className="font-nunito text-sm text-gray-600 space-y-1">
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                  You'll receive a confirmation email with all program details
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                  Our team will contact you with session schedules
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                  Check your dashboard for enrollment status updates
-                </li>
+                {enrollmentDetails.program_name?.includes('Trial') ? (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      You'll receive a confirmation email with trial session details
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      Our coach will contact you before the trial session
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      No payment required - this is completely free!
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                      You'll receive a confirmation email with all program details
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                      Our team will contact you with session schedules
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
+                      Check your dashboard for enrollment status updates
+                    </li>
+                  </>
+                )}
               </ul>
             </div>
             
