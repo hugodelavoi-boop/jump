@@ -453,7 +453,7 @@ const EnrolNow: React.FC = () => {
                     </div>
 
                     <div className="flex justify-end">
-                          {product.price_display !== undefined && (
+                      <Button
                         variant="primary"
                         onClick={nextStep}
                         disabled={!validateStep(1)}
