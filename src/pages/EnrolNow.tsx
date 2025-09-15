@@ -501,6 +501,7 @@ const EnrolNow: React.FC = () => {
                                 <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
                                   {product.price_display}
                                 </p>
+                              )}
                               {product.description && (
                                 <p className="font-nunito text-gray-600 text-sm">
                                   {product.description}
@@ -543,7 +544,12 @@ const EnrolNow: React.FC = () => {
                               formData.program === product.price_id
                                 ? 'border-electric-blue bg-electric-blue'
                                 : 'border-gray-300'
-                            {product.price_display === 'A$0.00' && (
+                            }`}>
+                              {product.price_display === 'A$0.00' && (
+                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  FREE TRIAL
+                                </span>
+                              )}
                               {formData.program === product.price_id && (
                                 <div className="w-2 h-2 bg-white rounded-full" />
                               )}
@@ -737,14 +743,37 @@ const EnrolNow: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  )) : (
-                    <div className="text-center py-8 col-span-full">
-                      <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="text-electric-blue hover:text-electric-blue/80 transition-colors"
+
+                    <ConsentWaiver
+                      onAccept={(accepted) => setFormData(prev => ({ ...prev, termsAccepted: accepted }))}
+                      accepted={formData.termsAccepted}
+                    />
+
+                    <div className="flex justify-between">
+                      <Button
+                        variant="outline"
+                        onClick={prevStep}
                       >
-                        Refresh page
-                      </button>
+                        Previous
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={handleSubmit}
+                        disabled={!validateStep(3) || isSubmitting}
+                        loading={isSubmitting}
+                      >
+                        {isSubmitting ? 'Processing...' : 'Complete Enrollment'}
+                      </Button>
                     </div>
-                  )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </AuthWrapper>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default EnrolNow;
