@@ -139,16 +139,8 @@ const Programs: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {products.length > 0 ? (
-              products
-                .filter(product => 
-                  // Filter out invalid products like "sd"
-                  product.name && 
-                  product.name.length > 2 && 
-                  product.price_display &&
-                  product.description
-                )
-                .map((product) => (
+            {products.length > 0 ? 
+              products.map((product) => (
               <div 
                 key={product.price_id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
@@ -163,26 +155,22 @@ const Programs: React.FC = () => {
                     </span>
                   </div>
                   
-                  {product.price_display && (
-                    <div className="mb-4">
-                      <span className={`font-nunito text-3xl font-bold ${
-                        product.price_display === 'A$0.00' ? 'text-green-600' : 'text-electric-blue'
-                      }`}>
-                        {product.price_display}
+                  <div className="mb-4">
+                    <span className={`font-nunito text-3xl font-bold ${
+                      (product.price_display === 'A$0.00' || product.price === 'A$0.00') ? 'text-green-600' : 'text-electric-blue'
+                    }`}>
+                      {product.price_display || product.price}
+                    </span>
+                    {(product.price_display === 'A$0.00' || product.price === 'A$0.00') && (
+                      <span className="ml-2 text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                        FREE
                       </span>
-                      {product.price_display === 'A$0.00' && (
-                        <span className="ml-2 text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                          FREE
-                        </span>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
                   
-                  {product.description && (
-                    <p className="font-nunito text-gray-600 mb-6">
-                      {product.description}
-                    </p>
-                  )}
+                  <p className="font-nunito text-gray-600 mb-6">
+                    {product.description}
+                  </p>
                   
                   <div className="mb-6">
                     <div className="bg-gray-50 rounded-lg p-4">
@@ -211,19 +199,18 @@ const Programs: React.FC = () => {
                   </div>
                   
                   <Button 
-                    variant={product.price_display === 'A$0.00' ? 'secondary' : 'primary'}
+                    variant={(product.price_display === 'A$0.00' || product.price === 'A$0.00') ? 'secondary' : 'primary'}
                     className="w-full group"
                     onClick={() => navigate('/enrol')}
                   >
                     <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                      {product.price_display === 'A$0.00' ? 'Book Free Trial' : 'Enrol Now'}
+                      {(product.price_display === 'A$0.00' || product.price === 'A$0.00') ? 'Book Free Trial' : 'Enrol Now'}
                       <ArrowRight className="w-4 h-4" />
                     </span>
                   </Button>
                 </div>
               </div>
-                ))
-            ) : (
+              )) : (
               <div className="text-center py-12 col-span-full">
                 <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
                 <button
