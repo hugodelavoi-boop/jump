@@ -1,7 +1,12 @@
 import React from 'react';
 import { AlertTriangle, FileText } from 'lucide-react';
 
-const ConsentWaiver: React.FC = () => {
+interface ConsentWaiverProps {
+  onAccept: (accepted: boolean) => void;
+  accepted: boolean;
+}
+
+const ConsentWaiver: React.FC<ConsentWaiverProps> = ({ onAccept, accepted }) => {
   return (
     <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
       <div className="flex items-center gap-3 mb-6">
@@ -56,9 +61,18 @@ const ConsentWaiver: React.FC = () => {
         </div>
 
         <div className="bg-electric-blue/5 border border-electric-blue/20 rounded-lg p-4">
-          <p className="text-sm font-medium text-electric-blue">
-            By proceeding with enrolment, I confirm that I have read and understood this Consent & Waiver.
-          </p>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={accepted}
+              onChange={(e) => onAccept(e.target.checked)}
+              className="mt-1 h-5 w-5 rounded border-gray-300 text-electric-blue focus:ring-electric-blue"
+              required
+            />
+            <span className="text-sm font-medium text-electric-blue">
+              I have read and understood this Consent & Waiver, and I agree to the terms and conditions by proceeding with enrollment.
+            </span>
+          </label>
         </div>
       </div>
     </div>
