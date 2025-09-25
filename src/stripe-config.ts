@@ -11,7 +11,7 @@ export const products = {
   beldonTrial: {
     id: 'prod_SzCm4sL2Aw6fZk',
     priceId: 'price_1S3EMdCAVPkj28mpISfKIsJJ',
-    name: 'Jump Start Sports - Beldon Primary Trial',
+    name: 'Jump Start Sports - St Simon Peter Primary Trial',
     description: '17/9/25 3-4pm',
     mode: 'payment' as const,
     price: 'A$0.00',
