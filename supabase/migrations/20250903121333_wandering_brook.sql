@@ -14,4 +14,5 @@
 DELETE FROM schools;
 
 INSERT INTO schools (name, suburb, postcode, active) VALUES 
-('Beldon Primary - Wednesday', 'Beldon', '6027', true);
+('Beldon Primary - Wednesday', 'Beldon', '6027', true),
+('St Simon Peters Primary School - Tuesday - Ocean Reef', 'Ocean Reef', '6027', true);
