@@ -9,7 +9,7 @@ import { createCheckoutSession } from '../lib/stripe';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
 import { User, Baby, School, Heart, Camera, Car, CheckCircle2, AlertCircle } from 'lucide-react';
-import { products as staticProducts } from '../stripe-config';
+import { stripeProducts as staticProducts } from '../stripe-config';
 
 interface FormData {
   parentName: string;
@@ -111,7 +111,7 @@ const EnrolNow: React.FC = () => {
 
     // Validate selected program exists
     const selectedProduct = products.find(p => p.price_id === formData.program);
-    const staticProduct = Object.values(staticProducts).find(p => p.priceId === formData.program);
+    const staticProduct = staticProducts.find(p => p.priceId === formData.program);
     
     if (!selectedProduct && !staticProduct) {
       setError('Selected program is no longer available. Please refresh the page and try again.');
@@ -553,7 +553,7 @@ const EnrolNow: React.FC = () => {
                         </label>
                       )) : products.length === 0 && !productsLoading ? (
                         // Static fallback products
-                        Object.values(staticProducts).map((product) => (
+                        staticProducts.map((product) => (
                           <label
                             key={product.priceId}
                             className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
@@ -576,16 +576,19 @@ const EnrolNow: React.FC = () => {
                                   {product.name}
                                 </h3>
                                 <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
-                                  {product.price}
+                                  {new Intl.NumberFormat('en-AU', {
+                                    style: 'currency',
+                                    currency: product.currency,
+                                  }).format(product.price)}
                                 </p>
                                 <p className="font-nunito text-gray-600 text-sm">
                                   {product.description}
                                 </p>
                                 <div className="mt-2">
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                    One-time Payment
+                                    {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
                                   </span>
-                                  {product.price === 'A$0.00' && (
+                                  {product.price === 0 && (
                                     <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                       FREE TRIAL
                                     </span>
@@ -731,8 +734,8 @@ const EnrolNow: React.FC = () => {
                         <div>
                           <span className="font-nunito font-medium text-gray-600">Program:</span>
                           <p className="font-nunito text-navy">
-                            {products.find(p => p.price_id === formData.program)?.name || 
-                             Object.values(staticProducts).find(p => p.priceId === formData.program)?.name || 
+                            {products.find(p => p.price_id === formData.program)?.name ||
+                             staticProducts.find(p => p.priceId === formData.program)?.name ||
                              'Selected Program'}
                           </p>
                         </div>

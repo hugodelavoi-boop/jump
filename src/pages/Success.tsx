@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, ArrowRight, Home, Calendar } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { getProductByPriceId } from '../stripe-config';
 
-export function Success() {
+export default function Success() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [orderDetails, setOrderDetails] = useState<any>(null);

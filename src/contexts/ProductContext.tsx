@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { products as staticProducts } from '../stripe-config';
+import { stripeProducts as staticProducts } from '../stripe-config';
 
 interface Product {
   id: string;
@@ -33,13 +33,16 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Convert static products to the expected format
   const convertStaticProducts = (): Product[] => {
-    return Object.values(staticProducts).map(product => ({
-      id: product.id,
+    return staticProducts.map(product => ({
+      id: product.productId,
       price_id: product.priceId,
       name: product.name,
       description: product.description,
       mode: product.mode,
-      price_display: product.price,
+      price_display: new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: product.currency,
+      }).format(product.price),
     }));
   };
 

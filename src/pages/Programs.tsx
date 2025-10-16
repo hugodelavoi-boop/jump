@@ -1,9 +1,9 @@
 import React from 'react';
 import { ProgramCard } from '../components/ProgramCard';
 import { stripeProducts } from '../stripe-config';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
-export function Programs() {
+export default function Programs() {
   const { user } = useAuth();
 
   const handleEnroll = async (priceId: string) => {
