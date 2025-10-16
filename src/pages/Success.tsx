@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, ArrowRight, Home, Calendar } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
 import { getProductByPriceId } from '../stripe-config';
 
@@ -31,7 +33,9 @@ export default function Success() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="bg-gradient-to-br from-green-50 to-blue-50">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -117,6 +121,8 @@ export default function Success() {
           </div>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }
