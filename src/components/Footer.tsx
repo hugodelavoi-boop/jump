@@ -119,25 +119,29 @@ const Footer: React.FC = () => {
               © {currentYear} Jump Start Sports. All rights reserved.
             </div>
             <div className="flex flex-wrap gap-6 md:justify-end text-sm font-nunito">
-              <a 
-                href="/terms"
+              <a
+                href="/waivers/website terms and conditions.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-400 hover:text-electric-blue transition-colors"
               >
                 Terms & Conditions
               </a>
-              <a 
-                href="/privacy"
+              <a
+                href="/waivers/privacy policy.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-400 hover:text-electric-blue transition-colors"
               >
                 Privacy Policy
               </a>
-              <a 
+              <a
                 href="/waiver"
                 className="text-gray-400 hover:text-electric-blue transition-colors"
               >
                 Parent Consent & Waiver
               </a>
-              <a 
+              <a
                 href="/cookie-policy"
                 className="text-gray-400 hover:text-electric-blue transition-colors"
               >
