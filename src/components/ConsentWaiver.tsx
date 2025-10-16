@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, FileText } from 'lucide-react';
+import { AlertTriangle, FileText, ExternalLink } from 'lucide-react';
 
 interface ConsentWaiverProps {
   onAccept: (accepted: boolean) => void;
@@ -7,6 +7,17 @@ interface ConsentWaiverProps {
 }
 
 const ConsentWaiver: React.FC<ConsentWaiverProps> = ({ onAccept, accepted }) => {
+  const waiverDocuments = [
+    { name: 'Terms & Conditions', path: '/waivers/JumpStartSports_Terms_and_Conditions.pdf' },
+    { name: 'Website Terms & Conditions', path: '/waivers/website terms and conditions.pdf' },
+    { name: 'Privacy Policy', path: '/waivers/privacy policy.pdf' },
+    { name: 'Permission of Collection Policy', path: '/waivers/JumpStartSports_Permission_of_Collection_Policy.pdf' },
+    { name: 'Media Consent Policy', path: '/waivers/JumpStartSports_Media_Consent_Policy.pdf' },
+    { name: 'Fitness Waiver', path: '/waivers/fitness-waiver-7384479870266376192.pdf' },
+    { name: 'Liability Waiver', path: '/waivers/liability-waiver-personal-7376168944622632960.pdf' },
+    { name: 'Cancellation Policy', path: '/waivers/cancellation-policy-7381905502260690944.pdf' },
+  ];
+
   return (
     <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
       <div className="flex items-center gap-3 mb-6">
@@ -15,12 +26,33 @@ const ConsentWaiver: React.FC<ConsentWaiverProps> = ({ onAccept, accepted }) => 
           Jump Start Sports – Consent & Waiver
         </h3>
       </div>
-      
+
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
         <p className="font-nunito text-sm text-yellow-800">
           <strong>Important:</strong> By enrolling your child in Jump Start Sports programs, you acknowledge and agree to the following:
         </p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 mb-6 border border-gray-200">
+        <h4 className="font-fredoka font-semibold text-navy mb-3">Required Documents</h4>
+        <p className="font-nunito text-sm text-gray-600 mb-3">
+          Please review the following documents before proceeding:
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {waiverDocuments.map((doc) => (
+            <a
+              key={doc.path}
+              href={doc.path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-electric-blue hover:text-navy transition-colors group"
+            >
+              <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              <span className="group-hover:underline">{doc.name}</span>
+            </a>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-6 font-nunito text-gray-700">
@@ -70,7 +102,7 @@ const ConsentWaiver: React.FC<ConsentWaiverProps> = ({ onAccept, accepted }) => 
               required
             />
             <span className="text-sm font-medium text-electric-blue">
-              I have read and understood this Consent & Waiver, and I agree to the terms and conditions by proceeding with enrollment.
+              I have read and understood this Consent & Waiver and all the documents listed above (Terms & Conditions, Privacy Policy, Waivers, and all other policies), and I agree to all terms and conditions by proceeding with enrollment.
             </span>
           </label>
         </div>
