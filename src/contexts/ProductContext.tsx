@@ -39,7 +39,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       name: product.name,
       description: product.description,
       mode: product.mode,
-      price_display: product.price_display,
+      price_display: product.price,
     }));
   };
 

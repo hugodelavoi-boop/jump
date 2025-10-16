@@ -83,8 +83,9 @@ export function useUserSubscription() {
     
     // Map price IDs to product names
     const priceToProductMap: Record<string, string> = {
-      'price_1S6TdOCAVPkj28mpxzTc1zcK': 'Term 4 2025 Program',
-      'price_1S3EMdCAVPkj28mpISfKIsJJ': 'Beldon Primary Trial',
+      'price_1SIkF2CAVPkj28mpFUpO9SmO': 'St Simon Peters Program',
+      'price_1SIkDyCAVPkj28mpSbFutqat': 'Beldon Primary Program',
+      'price_1S3EMdCAVPkj28mpISfKIsJJ': 'St Simon Peter Trial',
       'price_1RUIAfCAVPkj28mpKvB1jp0d': 'Single Session Pass',
     };
     
