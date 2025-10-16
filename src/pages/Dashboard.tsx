@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { User, Calendar, CreditCard, FileText, Mail, Phone, CheckCircle2 } from 'lucide-react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { UserSubscriptionStatus } from '../components/UserSubscriptionStatus';
 
 interface UserEnrollment {
   id: number;
@@ -93,6 +94,10 @@ const Dashboard: React.FC = () => {
                   </div>
                 )}
               </div>
+            </div>
+            
+            <div className="mt-6">
+              <UserSubscriptionStatus />
             </div>
           </div>
         </div>
