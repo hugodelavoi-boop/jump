@@ -1,455 +1,83 @@
-import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
-import { Calendar, Clock, Users, Shield, Target, Bell, Sunrise, ArrowRight, ClipboardCheck, UserCheck, Shirt, Droplet, ShoppingBag, Star, Trophy, Heart } from 'lucide-react';
-import Button from '../components/Button';
-import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../contexts/ProductContext';
-import { useEffect } from 'react';
-import { products as staticProducts } from '../stripe-config';
+import React from 'react';
+import { ProgramCard } from '../components/ProgramCard';
+import { stripeProducts } from '../stripe-config';
+import { useAuth } from '../contexts/AuthContext';
 
-const Programs: React.FC = () => {
-  const navigate = useNavigate();
-  const { products } = useProducts();
-  const [email, setEmail] = useState('');
-  const [refreshKey, setRefreshKey] = useState(0);
+export function Programs() {
+  const { user } = useAuth();
 
-  // Add sports program structured data
-  useEffect(() => {
-    const programScript = document.createElement('script');
-    programScript.type = 'application/ld+json';
-    programScript.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "SportsEvent",
-      "name": "Jump Start Sports Programs",
-      "description": "Multi-sport programs for children aged 5-12",
-      "sport": ["Soccer", "AFL", "Basketball", "Tennis", "Dodgeball"],
-      "organizer": {
-        "@type": "SportsOrganization",
-        "name": "Jump Start Sports",
-        "url": "https://www.jumpstartsports.com.au"
-      },
-      "audience": {
-        "@type": "Audience",
-        "audienceType": "Children",
-        "suggestedMinAge": 5,
-        "suggestedMaxAge": 12
-      },
-      "location": {
-        "@type": "Place",
-        "name": "Perth Schools",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Perth",
-          "addressRegion": "WA",
-          "addressCountry": "AU"
-        }
+  const handleEnroll = async (priceId: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId,
+          userId: user.id,
+          successUrl: `${window.location.origin}/success`,
+          cancelUrl: `${window.location.origin}/programs`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
       }
-    });
-    document.head.appendChild(programScript);
 
-    return () => {
-      if (document.head.contains(programScript)) {
-        document.head.removeChild(programScript);
-      }
-    };
-  }, []);
-  
-  // Force refresh products when component mounts
-  useEffect(() => {
-    console.log('🔄 Programs page mounted, products available:', products.length);
-    if (products.length === 0) {
-      console.log('⚠️ No products found, triggering refresh...');
-      setRefreshKey(prev => prev + 1);
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Failed to start checkout process. Please try again.');
     }
-  }, [products]);
-  
-  const benefits = [
-    'Multi-sport variety',
-    'Safe sign-out process',
-    'Qualified, child-first coaches',
-    'Structured, age-appropriate games',
-    'Designed to make every child feel included and capable'
-  ];
-
-  const whatToBring = [
-    { icon: ShoppingBag, text: 'Hat', description: 'For sun protection during outdoor activities' },
-    { icon: Droplet, text: 'Water bottle', description: 'To stay hydrated throughout the session' },
-    { icon: Target, text: 'Sneakers', description: 'School shoes OK if suitable for movement' },
-    { icon: Shirt, text: 'School uniform', description: 'Regular uniform is fine unless stated otherwise' }
-  ];
-
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically handle the waitlist submission
-    alert('Thanks for your interest! We\'ll notify you when holiday camps are available.');
-    setEmail('');
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[425px] flex items-end justify-center overflow-hidden pb-12">
-        <div className="absolute inset-0">
-          <img 
-            src="https://8oo57dacv4.ufs.sh/f/71xRIOSybaYn60xkqDFAUgH8TBYFmkDcf1IZJ4a79GwRtC52" 
-            alt="Children playing sports" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-navy/30 to-navy/70"></div>
-        </div>
-        
-        <div className="relative z-10 container mx-auto max-w-6xl px-4 text-center">
-          <h1 className="font-fredoka font-bold text-4xl md:text-5xl lg:text-6xl text-white mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Our Programs
           </h1>
-          <p className="font-nunito text-xl text-white/90 max-w-3xl mx-auto">
-            Age-appropriate programs designed to develop skills, confidence, and a love for sport.
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Choose from our range of exciting sports programs designed to build confidence, 
+            develop skills, and most importantly - have fun!
           </p>
         </div>
-      </section>
 
-      {/* Program Overview Section */}
-      <section className="py-16 md:py-24 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto">
-            <div className="prose max-w-none">
-              <p className="font-nunito text-lg text-gray-700 mb-6">
-                Our program delivers fun, high-energy 1-hour sessions directly on-site at your child's primary school — before or after the school day.
-              </p>
-              <p className="font-nunito text-lg text-gray-700 mb-12">
-                These sessions are more than just a sports class. They're carefully designed by experts in children's movement and development to build physical literacy, social confidence, and a genuine love for being active.
-              </p>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {stripeProducts.map((product) => (
+            <ProgramCard
+              key={product.priceId}
+              product={product}
+              onEnroll={handleEnroll}
+            />
+          ))}
         </div>
-      </section>
 
-      {/* Available Programs Section */}
-      <section className="py-16 md:py-24 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="font-fredoka font-bold text-3xl md:text-4xl text-navy mb-4">
-              Available Programs
-            </h2>
-            <p className="font-nunito text-lg text-gray-700 max-w-3xl mx-auto">
-              Choose the program that best fits your child's needs and your family's schedule.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {products.length > 0 ? 
-              products.map((product) => (
-              <div 
-                key={product.price_id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
-              >
-                <div className="p-8">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-fredoka font-bold text-2xl text-navy">
-                      {product.name}
-                    </h3>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-electric-blue/10 text-electric-blue">
-                      {product.mode === 'subscription' ? 'Recurring' : 'One-time'}
-                    </span>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <span className={`font-nunito text-3xl font-bold ${
-                      (product.price_display === 'A$0.00' || product.price === 'A$0.00') ? 'text-green-600' : 'text-electric-blue'
-                    }`}>
-                      {product.price_display || product.price}
-                    </span>
-                    {(product.price_display === 'A$0.00' || product.price === 'A$0.00') && (
-                      <span className="ml-2 text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                        FREE
-                      </span>
-                    )}
-                  </div>
-                  
-                  <p className="font-nunito text-gray-600 mb-6">
-                    {product.description}
-                  </p>
-                  
-                  <div className="mb-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-fredoka font-semibold text-sm text-navy mb-2">What's Included:</h4>
-                      <ul className="font-nunito text-sm text-gray-600 space-y-1">
-                        <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                          Professional coaching and supervision
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                          All sports equipment provided
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-electric-blue rounded-full"></div>
-                          Safe and structured environment
-                        </li>
-                        {product.name.includes('Trial') && (
-                          <li className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                            <span className="text-green-600 font-medium">No commitment required</span>
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    variant={(product.price_display === 'A$0.00' || product.price === 'A$0.00') ? 'secondary' : 'primary'}
-                    className="w-full group"
-                    onClick={() => navigate('/enrol')}
-                  >
-                    <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform duration-300">
-                      {(product.price_display === 'A$0.00' || product.price === 'A$0.00') ? 'Book Free Trial' : 'Enrol Now'}
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </Button>
-                </div>
-              </div>
-              )) : (
-              <div className="text-center py-12 col-span-full">
-                <p className="font-nunito text-gray-600 mb-4">No programs available at the moment.</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="text-electric-blue hover:text-electric-blue/80 transition-colors"
-                >
-                  Refresh page
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Before School Sessions Section */}
-      <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-electric-blue/5 to-white">
-        <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-orange/10 flex items-center justify-center">
-                <Sunrise className="w-6 h-6 text-orange" />
-              </div>
-              <h2 className="font-fredoka font-bold text-3xl text-navy">
-                Before School Sessions
-              </h2>
-            </div>
-
-            <div className="space-y-6">
-              <h3 className="font-fredoka text-xl text-navy">How It Works:</h3>
-              <ul className="space-y-4">
-                {[
-                  'Parents drop off their child at the designated session location (usually the school oval, undercover area, or gym).',
-                  'Our coaches greet students, check the roll, and run a structured, active warm-up to start the day with energy.',
-                  'After the session, children are signed out by our staff and walked safely to their classrooms or morning teacher.'
-                ].map((item, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-electric-blue/10 flex items-center justify-center flex-shrink-0 mt-1">
-                      <Target className="w-4 h-4 text-electric-blue" />
-                    </div>
-                    <span className="font-nunito text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="bg-orange/5 border border-orange/10 rounded-xl p-6">
-                <p className="font-nunito text-gray-700">
-                  ✅ Suitable for early risers, families needing early drop-off, or kids who benefit from morning movement.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* After School Sessions Section */}
-      <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-orange-50 to-white">
-        <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-electric-blue/10 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-electric-blue" />
-              </div>
-              <h2 className="font-fredoka font-bold text-3xl text-navy">
-                After School Sessions
-              </h2>
-            </div>
-
-            <div className="space-y-8">
-              <div>
-                <h3 className="font-fredoka text-xl text-navy mb-4">How It Works:</h3>
-                <ul className="space-y-4">
-                  {[
-                    { text: 'Students meet our coaches at a pre-agreed pick-up point (e.g., classroom or assembly area)', icon: ClipboardCheck },
-                    { text: 'Coaches mark attendance and safely transition students into the session', icon: UserCheck },
-                    { text: 'Fun warm-up games kick off each afternoon', icon: Target },
-                    { text: 'Parents pick up children from the session area, with coaches signing each child out individually', icon: Shield }
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-electric-blue/10 flex items-center justify-center flex-shrink-0 mt-1">
-                        <item.icon className="w-4 h-4 text-electric-blue" />
-                      </div>
-                      <span className="font-nunito text-gray-700">{item.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-electric-blue/5 border border-electric-blue/10 rounded-xl p-6 space-y-4">
-                <h4 className="font-fredoka text-lg text-navy">Safety & Supervision</h4>
-                <ul className="space-y-3">
-                  {[
-                    'All coaches are certified with Working With Children Checks and First Aid',
-                    'Attendance is recorded for every session — strict sign-in/sign-out procedures',
-                    'High coach-to-child ratios for personalised support and safety'
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Shield className="w-5 h-5 text-electric-blue flex-shrink-0 mt-1" />
-                      <span className="font-nunito text-gray-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* What to Bring Section */}
-      <section className="py-16 md:py-24 px-4 bg-gray-50">
-        <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="font-fredoka font-bold text-3xl text-navy mb-4">
-                🧢 What to Bring
-              </h2>
-              <p className="font-nunito text-lg text-gray-600">
-                We keep it simple so kids can focus on the fun!
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {whatToBring.map((item, index) => (
-                <div 
-                  key={index}
-                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-electric-blue/10 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-5 h-5 text-electric-blue" />
-                    </div>
-                    <div>
-                      <h3 className="font-fredoka font-semibold text-lg text-navy mb-1">
-                        {item.text}
-                      </h3>
-                      <p className="font-nunito text-gray-600">
-                        {item.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 bg-orange/5 border border-orange/10 rounded-xl p-6 text-center">
-              <p className="font-nunito text-gray-700">
-                🏅 All sporting equipment is provided by Jump Start Sports
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Holiday Camps Section */}
-      <section id="holiday-camps" className="py-16 md:py-24 px-4 bg-gradient-to-b from-yellow-50 to-white scroll-mt-20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="font-fredoka font-bold text-3xl text-navy mb-4">
-                🎉 Holiday Camps
-              </h2>
-              <p className="font-nunito text-lg text-gray-700">
-                Our Holiday Camps are currently in development for Term 3 holidays — designed to give kids a full day of structured fun, movement, and social connection while school's out.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-              <h3 className="font-fredoka text-xl text-navy mb-6">
-                What to Expect (once launched)
+        {!user && (
+          <div className="mt-12 text-center">
+            <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Ready to Get Started?
               </h3>
-              <div className="grid gap-6">
-                {[
-                  { icon: Users, title: 'Expert Coaching', text: 'Full-day sessions led by qualified, energetic coaches' },
-                  { icon: Star, title: 'Varied Activities', text: 'Multi-sport games, team challenges, and creative play' },
-                  { icon: Heart, title: 'Inclusive Environment', text: 'Safe, inclusive, and engaging environment for kids aged 5–12' },
-                  { icon: Trophy, title: 'Skill Development', text: 'Focus on building confidence, teamwork, and sports skills' }
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-electric-blue/10 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-5 h-5 text-electric-blue" />
-                    </div>
-                    <div>
-                      <h4 className="font-fredoka font-semibold text-lg text-navy mb-1">
-                        {item.title}
-                      </h4>
-                      <p className="font-nunito text-gray-600">{item.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-orange/5 border border-orange/10 rounded-xl p-8 text-center">
-              <p className="font-fredoka text-xl text-navy mb-4">
-                We're busy building this program to be something special — stay tuned!
+              <p className="text-gray-600 mb-4">
+                Sign in to your account to enroll in any of our programs.
               </p>
-              <form onSubmit={handleWaitlistSubmit} className="max-w-md mx-auto">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email for updates"
-                    className="flex-grow px-4 py-3 rounded-lg border border-orange/20 focus:ring-2 focus:ring-orange focus:border-orange transition-all"
-                    required
-                  />
-                  <Button 
-                    variant="secondary"
-                    className="whitespace-nowrap"
-                  >
-                    Join Waitlist
-                  </Button>
-                </div>
-              </form>
+              <a
+                href="/auth"
+                className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Sign In
+              </a>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Find a School CTA Section */}
-      <section className="py-16 md:py-24 px-4 bg-electric-blue">
-        <div className="container mx-auto max-w-6xl text-center">
-          <h2 className="font-fredoka font-bold text-3xl text-white mb-8">
-            Ready to Join the Fun?
-          </h2>
-          <Button 
-            variant="secondary"
-            size="lg"
-            className="group text-lg px-12"
-            onClick={() => navigate('/enrol')}
-          >
-            <span className="flex items-center gap-2">
-              Find a School Near You
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Button>
-        </div>
-      </section>
+        )}
+      </div>
     </div>
   );
-};
-
-export default Programs;
+}
