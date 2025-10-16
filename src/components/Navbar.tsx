@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { useAuth } from '../hooks/useAuth';
@@ -73,12 +73,21 @@ const Navbar: React.FC = () => {
             
             {session && (
               <div className="flex items-center space-x-4">
-                <Link 
+                <Link
                   to="/dashboard"
                   className={`flex items-center space-x-2 hover:text-electric-blue transition-colors ${isScrolled ? 'text-navy' : 'text-white'}`}
                 >
                   <User className="w-4 h-4" />
                   <span className="font-nunito text-sm">{session.user.email}</span>
+                </Link>
+                <Link
+                  to="/profile"
+                  className={`p-2 rounded-lg hover:bg-white/10 transition-colors ${
+                    isScrolled ? 'text-navy hover:bg-gray-100' : 'text-white'
+                  }`}
+                  title="Profile settings"
+                >
+                  <Settings className="w-4 h-4" />
                 </Link>
                 <button
                   onClick={() => supabase.auth.signOut()}
@@ -130,6 +139,13 @@ const Navbar: React.FC = () => {
                     onClick={() => setIsOpen(false)}
                   >
                     Dashboard
+                  </Link>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-navy hover:text-electric-blue transition-colors mb-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Profile Settings
                   </Link>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-navy">
