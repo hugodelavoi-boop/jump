@@ -1,89 +1,82 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, Calendar, CreditCard } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { CreditCard, CheckCircle } from 'lucide-react';
 import { getProductByPriceId } from '../stripe-config';
 
 interface Subscription {
   subscription_status: string;
   price_id: string;
-  current_period_start: number;
   current_period_end: number;
-  cancel_at_period_end: boolean;
 }
 
-export function UserSubscriptionStatus() {
+export const UserSubscriptionStatus: React.FC = () => {
   const { user } = useAuth();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      fetchSubscription();
+      fetchSubscriptions();
     }
   }, [user]);
 
-  const fetchSubscription = async () => {
+  const fetchSubscriptions = async () => {
     try {
       const { data, error } = await supabase
         .from('stripe_user_subscriptions')
         .select('*')
-        .eq('subscription_status', 'active')
-        .single();
+        .eq('subscription_status', 'active');
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching subscription:', error);
-      } else if (data) {
-        setSubscription(data);
-      }
+      if (error) throw error;
+      setSubscriptions(data || []);
     } catch (error) {
-      console.error('Error fetching subscription:', error);
+      console.error('Error fetching subscriptions:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user || loading) {
-    return null;
-  }
+  if (!user || loading) return null;
 
-  if (!subscription) {
+  if (subscriptions.length === 0) {
     return (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <div className="flex items-center">
-          <CreditCard className="w-5 h-5 text-blue-600 mr-2" />
-          <span className="text-blue-800 font-medium">No active subscription</span>
+          <CreditCard className="w-5 h-5 text-gray-400 mr-2" />
+          <span className="text-gray-600">No active subscriptions</span>
         </div>
       </div>
     );
   }
 
-  const product = getProductByPriceId(subscription.price_id);
-  const endDate = new Date(subscription.current_period_end * 1000);
-
   return (
-    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center">
-          <Crown className="w-5 h-5 text-green-600 mr-2" />
-          <div>
-            <span className="text-green-800 font-medium">
-              {product?.name || 'Active Subscription'}
-            </span>
-            {subscription.cancel_at_period_end && (
-              <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                Cancelling
-              </span>
-            )}
+    <div className="space-y-3">
+      {subscriptions.map((subscription, index) => {
+        const product = getProductByPriceId(subscription.price_id);
+        return (
+          <div key={index} className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                <div>
+                  <span className="font-medium text-green-800">
+                    {product?.name || 'Active Subscription'}
+                  </span>
+                  <p className="text-sm text-green-600">
+                    Status: {subscription.subscription_status}
+                  </p>
+                </div>
+              </div>
+              {subscription.current_period_end && (
+                <div className="text-sm text-green-600">
+                  Expires: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="text-right">
-          <div className="flex items-center text-sm text-green-600">
-            <Calendar className="w-4 h-4 mr-1" />
-            <span>Until {endDate.toLocaleDateString()}</span>
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
-}
+};
