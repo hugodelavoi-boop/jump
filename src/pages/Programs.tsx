@@ -1,5 +1,7 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
+import { Calendar, Clock, Users, MapPin, CreditCard } from 'lucide-react';
+import { stripeProducts } from '../stripe-config';
+import { ProductCard } from '../components/ProductCard';
 import Footer from '../components/Footer';
 import { ProgramCard } from '../components/ProgramCard';
 import { stripeProducts } from '../stripe-config';
@@ -82,6 +84,27 @@ export default function Programs() {
           </div>
         )}
       </div>
+
+      {/* Available Programs */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <CreditCard className="w-8 h-8 text-blue-600 mr-3" />
+              <h2 className="text-3xl font-bold text-gray-900">Available Programs</h2>
+            </div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Choose from our range of programs designed to get kids active and having fun
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {stripeProducts.map((product) => (
+              <ProductCard key={product.priceId} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
       </div>
       <Footer />
     </div>
