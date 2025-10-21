@@ -7,13 +7,64 @@ const Success = () => {
   const sessionId = searchParams.get('session_id');
   const [loading, setLoading] = useState(true);
   const [sessionData, setSessionData] = useState<any>(null);
+  const [netlifySubmitted, setNetlifySubmitted] = useState(false);
 
   useEffect(() => {
-    if (sessionId) {
-      // In a real implementation, you might want to verify the session
-      // For now, we'll just show a success message
-      setLoading(false);
-    }
+    const submitToNetlify = async () => {
+      if (!sessionId) {
+        setLoading(false);
+        return;
+      }
+
+      const pendingEnrollmentStr = localStorage.getItem('pendingEnrollment');
+      if (!pendingEnrollmentStr) {
+        console.log('No pending enrollment data found');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const enrollmentData = JSON.parse(pendingEnrollmentStr);
+        console.log('📧 Submitting enrollment to Netlify:', enrollmentData);
+
+        const formData = new FormData();
+        formData.append('form-name', 'enrollment');
+        formData.append('title', `New Enrollment: ${enrollmentData.childName}`);
+        formData.append('parentName', enrollmentData.parentName || '');
+        formData.append('email', enrollmentData.email || '');
+        formData.append('mobile', enrollmentData.mobile || '');
+        formData.append('childName', enrollmentData.childName || '');
+        formData.append('childAge', enrollmentData.childAge || '');
+        formData.append('childSchool', enrollmentData.childSchool || '');
+        formData.append('medicalInfo', enrollmentData.medicalInfo || 'None provided');
+        formData.append('programName', enrollmentData.programName || 'Not specified');
+        formData.append('paymentType', enrollmentData.paymentType || 'Unknown');
+        formData.append('requiresPickup', enrollmentData.requiresPickup ? 'Yes' : 'No');
+        formData.append('photoPermission', enrollmentData.photoPermission ? 'Yes' : 'No');
+        formData.append('submissionDate', new Date().toISOString());
+        formData.append('checkoutSessionId', sessionId);
+        formData.append('status', 'Payment Completed');
+
+        const response = await fetch('/', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          console.log('✅ Successfully submitted to Netlify');
+          setNetlifySubmitted(true);
+          localStorage.removeItem('pendingEnrollment');
+        } else {
+          console.error('❌ Failed to submit to Netlify:', response.status);
+        }
+      } catch (error) {
+        console.error('❌ Error submitting to Netlify:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    submitToNetlify();
   }, [sessionId]);
 
   if (loading) {

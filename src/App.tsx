@@ -13,8 +13,6 @@ import Terms from './pages/Terms';
 import CookiePolicy from './pages/CookiePolicy';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import Enroll from './pages/Enroll';
-import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
@@ -32,7 +30,6 @@ function App() {
       <Route path="/cookie-policy" element={<CookiePolicy />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/enroll" element={<Enroll />} />
     </Routes>
   );
 }
