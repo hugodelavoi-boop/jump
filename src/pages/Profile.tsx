@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import ProfileForm from '../components/ProfileForm';
 import PasswordUpdateForm from '../components/PasswordUpdateForm';
 import AuthWrapper from '../components/AuthWrapper';
+import { UserSubscriptionStatus } from '../components/UserSubscriptionStatus';
 
 const Profile: React.FC = () => {
   return (
@@ -35,6 +36,12 @@ const Profile: React.FC = () => {
             <div className="space-y-8">
               <ProfileForm />
               <PasswordUpdateForm />
+
+              {/* Subscription Status */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Subscription Status</h2>
+                <UserSubscriptionStatus />
+              </div>
             </div>
           </AuthWrapper>
         </div>
