@@ -12,29 +12,32 @@ const Success = () => {
   useEffect(() => {
     const submitToNetlify = async () => {
       if (!sessionId) {
+        console.log('⚠️ No session ID found in URL');
         setLoading(false);
         return;
       }
 
       const pendingEnrollmentStr = localStorage.getItem('pendingEnrollment');
       if (!pendingEnrollmentStr) {
-        console.log('No pending enrollment data found');
+        console.log('⚠️ No pending enrollment data found in localStorage');
         setLoading(false);
         return;
       }
 
       try {
         const enrollmentData = JSON.parse(pendingEnrollmentStr);
-        console.log('📧 Submitting enrollment to Netlify:', enrollmentData);
+        console.log('📧 Retrieved enrollment data:', enrollmentData);
+        console.log('🔑 Session ID:', sessionId);
 
         const formData = new FormData();
         formData.append('form-name', 'enrollment');
-        formData.append('title', `New Enrollment: ${enrollmentData.childName}`);
+        formData.append('bot-field', '');
+        formData.append('title', `New Enrollment: ${enrollmentData.childName || 'Unknown Child'}`);
         formData.append('parentName', enrollmentData.parentName || '');
         formData.append('email', enrollmentData.email || '');
-        formData.append('mobile', enrollmentData.mobile || '');
+        formData.append('mobile', enrollmentData.mobile || 'Not provided');
         formData.append('childName', enrollmentData.childName || '');
-        formData.append('childAge', enrollmentData.childAge || '');
+        formData.append('childAge', String(enrollmentData.childAge || ''));
         formData.append('childSchool', enrollmentData.childSchool || '');
         formData.append('medicalInfo', enrollmentData.medicalInfo || 'None provided');
         formData.append('programName', enrollmentData.programName || 'Not specified');
@@ -45,17 +48,30 @@ const Success = () => {
         formData.append('checkoutSessionId', sessionId);
         formData.append('status', 'Payment Completed');
 
+        console.log('📤 Submitting to Netlify...');
+        console.log('Form fields:');
+        for (const [key, value] of formData.entries()) {
+          console.log(`  ${key}: ${value}`);
+        }
+
         const response = await fetch('/', {
           method: 'POST',
-          body: formData,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(formData as any).toString(),
         });
 
-        if (response.ok) {
+        console.log('📥 Response status:', response.status);
+
+        if (response.ok || response.status === 200) {
           console.log('✅ Successfully submitted to Netlify');
           setNetlifySubmitted(true);
           localStorage.removeItem('pendingEnrollment');
         } else {
-          console.error('❌ Failed to submit to Netlify:', response.status);
+          console.error('❌ Failed to submit to Netlify:', response.status, response.statusText);
+          const responseText = await response.text();
+          console.error('Response body:', responseText);
         }
       } catch (error) {
         console.error('❌ Error submitting to Netlify:', error);
