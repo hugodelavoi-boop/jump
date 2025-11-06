@@ -54,7 +54,18 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, requiredForAction =
         if (error) throw error;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      let errorMessage = 'An error occurred';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        if (err.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (err.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (err.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email to confirm your account.';
+        }
+      }
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

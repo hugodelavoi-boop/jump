@@ -3,7 +3,9 @@ import { loadStripe } from '@stripe/stripe-js';
 import { StripeProduct } from '../stripe-config';
 import { Loader2 } from 'lucide-react';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+  : null;
 
 interface ProductCardProps {
   product: StripeProduct;
