@@ -28,6 +28,31 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     throw error;
   }
 
+  // If no profile exists, try to create one
+  if (!data) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: newProfile, error: insertError } = await supabase
+        .from('users')
+        .insert({
+          id: userId,
+          email: user.email!,
+          first_name: user.user_metadata?.first_name || null,
+          last_name: user.user_metadata?.last_name || null,
+          mobile: user.user_metadata?.mobile || null,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Error creating user profile:', insertError);
+        return null;
+      }
+
+      return newProfile;
+    }
+  }
+
   return data;
 }
 
