@@ -3,8 +3,8 @@ import { Calendar, Clock, Users, MapPin, CreditCard } from 'lucide-react';
 import { stripeProducts } from '../stripe-config';
 import { ProductCard } from '../components/ProductCard';
 import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
 import { ProgramCard } from '../components/ProgramCard';
-import { stripeProducts } from '../stripe-config';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Programs() {
