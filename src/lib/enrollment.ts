@@ -4,7 +4,7 @@ import { createCheckoutSession } from './stripe';
 export interface EnrollmentData {
   parentName: string;
   email: string;
-  mobile: string; // CULPRIT 3 FIX: Ensure this is always provided
+  mobile: string;
   childName: string;
   childAge: string;
   childSchool: string;
@@ -14,17 +14,51 @@ export interface EnrollmentData {
   photoPermission: boolean;
 }
 
+async function submitToNetlify(data: EnrollmentData, checkoutSessionId: string, programName?: string, paymentType?: string) {
+  const formData = new FormData();
+  formData.append('form-name', 'enrollment');
+  formData.append('parentName', data.parentName);
+  formData.append('email', data.email);
+  formData.append('mobile', data.mobile || 'Not provided');
+  formData.append('childName', data.childName);
+  formData.append('childAge', data.childAge);
+  formData.append('childSchool', data.childSchool);
+  formData.append('medicalInfo', data.medicalInfo || 'None');
+  formData.append('programName', programName || 'Selected Program');
+  formData.append('paymentType', paymentType || 'One-time Payment');
+  formData.append('requiresPickup', data.requiresPickup ? 'Yes' : 'No');
+  formData.append('photoPermission', data.photoPermission ? 'Yes' : 'No');
+  formData.append('checkoutSessionId', checkoutSessionId);
+  formData.append('submissionDate', new Date().toISOString());
+  formData.append('status', 'pending');
+
+  try {
+    const response = await fetch('/', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      console.error('Netlify form submission failed:', response.statusText);
+    } else {
+      console.log('Successfully submitted to Netlify Forms');
+    }
+  } catch (error) {
+    console.error('Error submitting to Netlify Forms:', error);
+  }
+}
+
 export async function createEnrollment(
-  data: EnrollmentData, 
+  data: EnrollmentData,
   userId: string,
-  checkoutSessionId: string = 'pending'
+  checkoutSessionId: string = 'pending',
+  programName?: string,
+  paymentType?: string
 ) {
-  // Validate required fields
   if (!data.parentName || !data.email || !data.childName || !data.childAge || !data.childSchool || !data.program) {
     throw new Error('Missing required enrollment information');
   }
 
-  // CULPRIT 3 FIX: Ensure mobile has a fallback value
   const mobileValue = data.mobile && data.mobile.trim() !== '' ? data.mobile : 'Not provided';
   console.log('📱 Mobile value being stored:', mobileValue);
 
@@ -35,7 +69,7 @@ export async function createEnrollment(
         user_id: userId,
         parent_name: data.parentName,
         email: data.email,
-        mobile: mobileValue, // CULPRIT 3 FIX: Use validated mobile value
+        mobile: mobileValue,
         child_name: data.childName,
         child_age: data.childAge,
         child_school: data.childSchool,
@@ -52,6 +86,8 @@ export async function createEnrollment(
     console.error('Failed to create enrollment:', error);
     throw new Error('Failed to create enrollment');
   }
+
+  await submitToNetlify(data, checkoutSessionId, programName, paymentType);
 
   return true;
 }

@@ -209,11 +209,10 @@ const EnrolNow: React.FC = () => {
           program: formData.program,
           requiresPickup: formData.requiresPickup,
           photoPermission: formData.photoPermission,
-        }, session.user.id, sessionId);
-        console.log('✅ Enrollment created successfully');
+        }, session.user.id, sessionId, selectedProduct?.name || staticProduct?.name, (selectedProduct?.mode || staticProduct?.mode) === 'subscription' ? 'Recurring Payment' : 'One-time Payment');
+        console.log('✅ Enrollment created successfully and submitted to Netlify');
       } catch (enrollmentError) {
         console.error('⚠️ Enrollment creation failed, but continuing with checkout:', enrollmentError);
-        // Don't fail the entire process if enrollment creation fails
       }
 
       setSuccess(true);
