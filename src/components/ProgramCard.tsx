@@ -62,7 +62,7 @@ export function ProgramCard({ product, onEnroll, loading = false }: ProgramCardP
           </div>
         </div>
 
-        {user ? (
+        {session ? (
           <button
             onClick={handleEnroll}
             disabled={loading || isProcessing}
