@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProgramCard } from '../components/ProgramCard';
 import { stripeProducts } from '../stripe-config';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export function Programs() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { session } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleEnroll = async (priceId: string) => {
-    if (!user) {
-      navigate('/auth');
+    if (!session) {
+      navigate('/login');
       return;
     }
 
@@ -102,3 +102,4 @@ export function Programs() {
     </div>
   );
 }
+export default Programs;

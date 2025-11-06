@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Clock, Users, MapPin, CreditCard } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { StripeProduct } from '../stripe-config';
 
 interface ProgramCardProps {
@@ -10,11 +10,11 @@ interface ProgramCardProps {
 }
 
 export function ProgramCard({ product, onEnroll, loading = false }: ProgramCardProps) {
-  const { user } = useAuth();
+  const { session } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleEnroll = async () => {
-    if (!user || !onEnroll) return;
+    if (!session || !onEnroll) return;
     
     setIsProcessing(true);
     try {

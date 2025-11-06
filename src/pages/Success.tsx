@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Home } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export function Success() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [orderDetails, setOrderDetails] = useState<any>(null);
 
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
+    if (!session) {
+      navigate('/login');
       return;
     }
 
@@ -114,3 +114,4 @@ export function Success() {
     </div>
   );
 }
+export default Success;

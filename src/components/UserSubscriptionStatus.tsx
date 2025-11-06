@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Crown, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 interface Subscription {
   subscription_status: string;
@@ -10,18 +10,18 @@ interface Subscription {
 }
 
 export function UserSubscriptionStatus() {
-  const { user } = useAuth();
+  const { session } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!session) {
       setLoading(false);
       return;
     }
 
     fetchSubscription();
-  }, [user]);
+  }, [session]);
 
   const fetchSubscription = async () => {
     try {
@@ -44,7 +44,7 @@ export function UserSubscriptionStatus() {
     }
   };
 
-  if (!user || loading) {
+  if (!session || loading) {
     return null;
   }
 
