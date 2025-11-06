@@ -71,7 +71,7 @@ const Navbar: React.FC = () => {
               </Link>
             ))}
             
-            {session && (
+            {session ? (
               <div className="flex items-center space-x-4">
                 <Link
                   to="/dashboard"
@@ -99,6 +99,17 @@ const Navbar: React.FC = () => {
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
+            ) : (
+              <Link
+                to="/login"
+                className={`px-4 py-2 rounded-lg font-nunito font-medium transition-colors ${
+                  isScrolled
+                    ? 'bg-electric-blue text-white hover:bg-electric-blue/90'
+                    : 'bg-white text-navy hover:bg-white/90'
+                }`}
+              >
+                Login
+              </Link>
             )}
           </div>
           
@@ -131,7 +142,7 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
               
-              {session && (
+              {session ? (
                 <div className="px-4 py-2 border-t border-gray-200 mt-2 pt-4">
                   <Link
                     to="/dashboard"
@@ -168,6 +179,16 @@ const Navbar: React.FC = () => {
                       ✓ {subscription.product_name || 'Active Plan'}
                     </span>
                   )}
+                </div>
+              ) : (
+                <div className="px-4 py-2 border-t border-gray-200 mt-2 pt-4">
+                  <Link
+                    to="/login"
+                    className="block px-4 py-2 bg-electric-blue text-white hover:bg-electric-blue/90 rounded-lg text-center font-medium transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Login
+                  </Link>
                 </div>
               )}
             </div>

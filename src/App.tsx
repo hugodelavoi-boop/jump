@@ -13,6 +13,7 @@ import Terms from './pages/Terms';
 import CookiePolicy from './pages/CookiePolicy';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/cookie-policy" element={<CookiePolicy />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
     </Routes>
