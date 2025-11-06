@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Crown, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../hooks/useAuth';
-import { CreditCard, CheckCircle } from 'lucide-react';
-import { getProductByPriceId } from '../stripe-config';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Subscription {
   subscription_status: string;
@@ -10,73 +9,74 @@ interface Subscription {
   current_period_end: number;
 }
 
-export const UserSubscriptionStatus: React.FC = () => {
+export function UserSubscriptionStatus() {
   const { user } = useAuth();
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchSubscriptions();
+    if (!user) {
+      setLoading(false);
+      return;
     }
+
+    fetchSubscription();
   }, [user]);
 
-  const fetchSubscriptions = async () => {
+  const fetchSubscription = async () => {
     try {
       const { data, error } = await supabase
         .from('stripe_user_subscriptions')
         .select('*')
-        .eq('subscription_status', 'active');
+        .eq('subscription_status', 'active')
+        .single();
 
-      if (error) throw error;
-      setSubscriptions(data || []);
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching subscription:', error);
+        return;
+      }
+
+      setSubscription(data);
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      console.error('Error fetching subscription:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user || loading) return null;
+  if (!user || loading) {
+    return null;
+  }
 
-  if (subscriptions.length === 0) {
+  if (!subscription) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center">
-          <CreditCard className="w-5 h-5 text-gray-400 mr-2" />
-          <span className="text-gray-600">No active subscriptions</span>
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600" />
+          <div>
+            <p className="text-yellow-800 font-medium">No Active Subscription</p>
+            <p className="text-yellow-700 text-sm">Browse our programs to get started</p>
+          </div>
         </div>
       </div>
     );
   }
 
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString();
+  };
+
   return (
-    <div className="space-y-3">
-      {subscriptions.map((subscription, index) => {
-        const product = getProductByPriceId(subscription.price_id);
-        return (
-          <div key={index} className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                <div>
-                  <span className="font-medium text-green-800">
-                    {product?.name || 'Active Subscription'}
-                  </span>
-                  <p className="text-sm text-green-600">
-                    Status: {subscription.subscription_status}
-                  </p>
-                </div>
-              </div>
-              {subscription.current_period_end && (
-                <div className="text-sm text-green-600">
-                  Expires: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+      <div className="flex items-center gap-3">
+        <Crown className="w-5 h-5 text-green-600" />
+        <div>
+          <p className="text-green-800 font-medium">Active Subscription</p>
+          <p className="text-green-700 text-sm">
+            Renews on {formatDate(subscription.current_period_end)}
+          </p>
+        </div>
+      </div>
     </div>
   );
-};
+}
