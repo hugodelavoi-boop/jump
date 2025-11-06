@@ -10,6 +10,22 @@ export interface StripeProduct {
 
 export const stripeProducts: StripeProduct[] = [
   {
+    priceId: 'price_1SQLk3CAVPkj28mpgjVdhRF1',
+    name: 'Mindarie Primary Trial',
+    mode: 'payment',
+    price: 0.00,
+    currency: 'aud',
+    currencySymbol: 'A$'
+  },
+  {
+    priceId: 'price_1SQLirCAVPkj28mpXKc8ZBiV',
+    name: 'Quinns Beach Primary Trial',
+    mode: 'payment',
+    price: 0.00,
+    currency: 'aud',
+    currencySymbol: 'A$'
+  },
+  {
     priceId: 'price_1SKaUpCAVPkj28mpJogrqR5n',
     name: 'test product',
     mode: 'payment',

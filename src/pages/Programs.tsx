@@ -1,18 +1,21 @@
-import React from 'react';
-import { Calendar, Clock, Users, MapPin, CreditCard } from 'lucide-react';
-import { stripeProducts } from '../stripe-config';
-import { ProductCard } from '../components/ProductCard';
-import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProgramCard } from '../components/ProgramCard';
-import { useAuth } from '../hooks/useAuth';
+import { stripeProducts } from '../stripe-config';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function Programs() {
+export function Programs() {
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const handleEnroll = async (priceId: string) => {
-    if (!user) return;
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
 
+    setLoading(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
         method: 'POST',
@@ -22,7 +25,6 @@ export default function Programs() {
         },
         body: JSON.stringify({
           priceId,
-          userId: user.id,
           successUrl: `${window.location.origin}/success`,
           cancelUrl: `${window.location.origin}/programs`,
         }),
@@ -37,76 +39,66 @@ export default function Programs() {
     } catch (error) {
       console.error('Checkout error:', error);
       alert('Failed to start checkout process. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Our Programs
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose from our range of exciting sports programs designed to build confidence, 
-            develop skills, and most importantly - have fun!
+            Choose from our range of fun, engaging sports programs designed to build confidence, 
+            develop skills, and keep kids active and healthy.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {stripeProducts.map((product) => (
             <ProgramCard
               key={product.priceId}
               product={product}
               onEnroll={handleEnroll}
+              loading={loading}
             />
           ))}
         </div>
 
-        {!user && (
-          <div className="mt-12 text-center">
-            <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Ready to Get Started?
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Sign in to your account to enroll in any of our programs.
-              </p>
-              <a
-                href="/auth"
-                className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-              >
-                Sign In
-              </a>
+        <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Why Choose Jump Start Sports?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+              <div className="text-center">
+                <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🏃</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Active & Fun</h3>
+                <p className="text-gray-600">Engaging activities that keep kids moving and having fun</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">👥</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Social Skills</h3>
+                <p className="text-gray-600">Building friendships and teamwork through sport</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🏆</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Confidence Building</h3>
+                <p className="text-gray-600">Helping every child feel successful and confident</p>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Available Programs */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-4">
-              <CreditCard className="w-8 h-8 text-blue-600 mr-3" />
-              <h2 className="text-3xl font-bold text-gray-900">Available Programs</h2>
-            </div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Choose from our range of programs designed to get kids active and having fun
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {stripeProducts.map((product) => (
-              <ProductCard key={product.priceId} product={product} />
-            ))}
           </div>
         </div>
-      </section>
       </div>
-      <Footer />
     </div>
   );
 }
