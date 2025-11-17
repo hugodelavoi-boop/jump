@@ -34,14 +34,6 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     priceDisplay: 'Free'
   },
   {
-    priceId: 'price_1SKaUpCAVPkj28mpJogrqR5n',
-    name: 'test product',
-    mode: 'payment',
-    price: 0,
-    currency: 'aud',
-    priceDisplay: 'Free'
-  },
-  {
     priceId: 'price_1SIkDyCAVPkj28mpSbFutqat',
     name: 'Beldon Primary – Term 4 2025 Program Enrolment',
     description: 'One-term enrolment for Jump Start Sports\' after-school multi-sport sessions. Designed for kids aged 5–12, focused on confidence, movement, and fun. This is exclusive to Beldon Primary.',
@@ -60,6 +52,8 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     priceDisplay: 'A$20.00'
   }
 ];
+
+export const stripeProducts = STRIPE_PRODUCTS;
 
 export const getProductByPriceId = (priceId: string): StripeProduct | undefined => {
   return STRIPE_PRODUCTS.find(product => product.priceId === priceId);
