@@ -24,11 +24,6 @@ export function ProgramCard({ product, onEnroll, loading = false }: ProgramCardP
     }
   };
 
-  const formatPrice = (price: number, currencySymbol: string) => {
-    if (price === 0) return 'Free';
-    return `${currencySymbol}${price.toFixed(2)}`;
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       <div className="p-6">
@@ -36,7 +31,7 @@ export function ProgramCard({ product, onEnroll, loading = false }: ProgramCardP
           <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
           <div className="text-right">
             <div className="text-2xl font-bold text-blue-600">
-              {formatPrice(product.price, product.currencySymbol)}
+              {product.priceDisplay}
             </div>
           </div>
         </div>

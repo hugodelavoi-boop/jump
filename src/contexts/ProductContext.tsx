@@ -34,15 +34,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Convert static products to the expected format
   const convertStaticProducts = (): Product[] => {
     return staticProducts.map(product => ({
-      id: product.productId,
+      id: product.priceId,
       price_id: product.priceId,
       name: product.name,
-      description: product.description,
+      description: product.description || null,
       mode: product.mode,
-      price_display: new Intl.NumberFormat('en-AU', {
-        style: 'currency',
-        currency: product.currency,
-      }).format(product.price),
+      price_display: product.priceDisplay,
     }));
   };
 
