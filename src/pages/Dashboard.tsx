@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
-import { useAuth } from '../hooks/useAuth';
+import { User, Calendar, CreditCard, Settings, LogOut, Phone, Mail, Star } from 'lucide-react';
 import { useUserSubscription } from '../hooks/useUserSubscription';
 import { supabase } from '../lib/supabase';
+import { getProductByPriceId } from '../stripe-config';
 import { User, Calendar, CreditCard, FileText, Mail, Phone, CheckCircle2 } from 'lucide-react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +17,18 @@ interface UserEnrollment {
   created_at: string;
 }
 
+interface Subscription {
+  customer_id: string;
+  subscription_id: string;
+  subscription_status: string;
+  price_id: string;
+  current_period_start: number;
+  current_period_end: number;
+  cancel_at_period_end: boolean;
+  payment_method_brand: string;
+  payment_method_last4: string;
+}
+
 const Dashboard: React.FC = () => {
   const { session, loading: authLoading } = useAuth();
   const { subscription, loading: subscriptionLoading } = useUserSubscription();
@@ -24,6 +37,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     if (session) {
       fetchEnrollments();
     }
@@ -38,12 +52,33 @@ const Dashboard: React.FC = () => {
 
       if (error) throw error;
       setEnrollments(data || []);
+
+      // Fetch subscriptions
+      const { data: subscriptionData, error: subscriptionError } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('*');
+
+      if (subscriptionError) {
+        console.error('Error fetching subscriptions:', subscriptionError);
+      } else {
+        setSubscriptions(subscriptionData || []);
+      }
     } catch (error) {
       console.error('Error fetching enrollments:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const getActiveSubscription = () => {
+    return subscriptions.find(sub => 
+      sub.subscription_status === 'active' || 
+      sub.subscription_status === 'trialing'
+    );
+  };
+
+  const activeSubscription = getActiveSubscription();
+  const activeProduct = activeSubscription ? getProductByPriceId(activeSubscription.price_id) : null;
 
   if (authLoading || loading) {
     return (
@@ -238,6 +273,35 @@ const Dashboard: React.FC = () => {
                   <div className="animate-pulse">
                     <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
                     <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+              {/* Active Subscription */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Star className="w-6 h-6 text-green-600" />
+                  <h3 className="text-lg font-semibold">Active Plan</h3>
+                </div>
+                {activeProduct ? (
+                  <div className="space-y-2">
+                    <p className="font-medium text-green-600">{activeProduct.name}</p>
+                    <p className="text-sm text-gray-600">Status: Active</p>
+                    {activeSubscription?.current_period_end && (
+                      <p className="text-sm text-gray-600">
+                        Next billing: {new Date(activeSubscription.current_period_end * 1000).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-gray-600">No active subscription</p>
+                    <button
+                      onClick={() => navigate('/programs')}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      Browse Programs →
+                    </button>
+                  </div>
+                )}
+              </div>
+
                   </div>
                 </div>
               )}
@@ -250,34 +314,12 @@ const Dashboard: React.FC = () => {
                   <p className="font-nunito text-gray-500 text-sm">
                     Your recent purchases will appear here
                   </p>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="font-fredoka font-semibold text-lg text-navy mb-4">
-                  Quick Actions
-                </h3>
-                <div className="space-y-3">
                   <button
                     onClick={() => navigate('/enrol')}
                     className="w-full flex items-center gap-3 p-3 rounded-lg bg-electric-blue/5 hover:bg-electric-blue/10 transition-colors text-left"
                   >
                     <FileText className="w-5 h-5 text-electric-blue" />
                     <span className="font-nunito text-navy">New Enrollment</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/programs')}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                  >
-                    <Calendar className="w-5 h-5 text-gray-600" />
-                    <span className="font-nunito text-navy">View Programs</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/contact')}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                  >
-                    <Mail className="w-5 h-5 text-gray-600" />
-                    <span className="font-nunito text-navy">Contact Support</span>
                   </button>
                 </div>
               </div>
