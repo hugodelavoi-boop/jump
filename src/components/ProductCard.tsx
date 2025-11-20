@@ -1,86 +1,59 @@
-import React, { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import React from 'react';
+import { Calendar, Users, Star } from 'lucide-react';
 import { StripeProduct } from '../stripe-config';
-import { Loader2 } from 'lucide-react';
-
-const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-  : null;
 
 interface ProductCardProps {
   product: StripeProduct;
-  className?: string;
+  onEnroll: (priceId: string) => void;
+  loading?: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) => {
-  const [loading, setLoading] = useState(false);
-
-  const handleCheckout = async () => {
-    try {
-      setLoading(true);
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: product.priceId,
-          mode: product.mode,
-          successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: window.location.href,
-        }),
-      });
-
-      const { sessionId } = await response.json();
-      
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe failed to load');
-
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-      if (error) {
-        console.error('Stripe checkout error:', error);
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPrice = (price: number, currencySymbol: string) => {
-    if (price === 0) return 'Free';
-    return `${currencySymbol}${price.toFixed(2)}`;
-  };
-
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onEnroll, loading }) => {
+  const isFree = product.price_display === 'Free';
+  
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow ${className}`}>
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
-        {product.description && (
-          <p className="text-gray-600 text-sm leading-relaxed">{product.description}</p>
-        )}
-      </div>
-      
-      <div className="flex items-center justify-between">
-        <div className="text-2xl font-bold text-blue-600">
-          {formatPrice(product.price, product.currencySymbol)}
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-900 leading-tight">
+            {product.name}
+          </h3>
+          <div className="text-right">
+            <div className={`text-2xl font-bold ${isFree ? 'text-green-600' : 'text-blue-600'}`}>
+              {product.price_display}
+            </div>
+          </div>
+        </div>
+        
+        <p className="text-gray-600 mb-6 leading-relaxed">
+          {product.description}
+        </p>
+        
+        <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
+          <div className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            <span>Ages 5-12</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Calendar className="w-4 h-4" />
+            <span>After School</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Star className="w-4 h-4" />
+            <span>Multi-Sport</span>
+          </div>
         </div>
         
         <button
-          onClick={handleCheckout}
+          onClick={() => onEnroll(product.priceId)}
           disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+          className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+            isFree
+              ? 'bg-green-600 hover:bg-green-700 text-white'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            'Buy Now'
-          )}
+          {loading ? 'Processing...' : isFree ? 'Book Free Trial' : 'Enroll Now'}
         </button>
       </div>
     </div>
