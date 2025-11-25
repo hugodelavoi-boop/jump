@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Trophy, Target, Heart, Users } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { stripeProducts } from '../stripe-config';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 
-export const Programs: React.FC = () => {
+const Programs: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
@@ -173,3 +173,5 @@ export const Programs: React.FC = () => {
     </div>
   );
 };
+
+export default Programs;
