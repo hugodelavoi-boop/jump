@@ -22,20 +22,6 @@ export const stripeProducts: StripeProduct[] = [
     price_display: 'Free'
   },
   {
-    priceId: 'price_1SQLk3CAVPkj28mpgjVdhRF1',
-    name: 'Mindarie Primary Trial',
-    description: 'Free trial session at Mindarie Primary School.',
-    mode: 'payment',
-    price_display: 'Free'
-  },
-  {
-    priceId: 'price_1SQLirCAVPkj28mpXKc8ZBiV',
-    name: 'Quinns Beach Primary Trial',
-    description: 'Free trial session at Quinns Beach Primary School.',
-    mode: 'payment',
-    price_display: 'Free'
-  },
-  {
     priceId: 'price_1RUIAfCAVPkj28mpKvB1jp0d',
     name: 'Jump Start Sports – Single Session Pass',
     description: 'One-time access to a fun, coach-led multi-sport session for children aged 5–12. Perfect for trial sessions, casual bookings, or make-up days. Each session includes a mix of energetic activities like soccer, dodgeball, AFL, and more — all in a safe, inclusive environment.',
