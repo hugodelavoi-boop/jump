@@ -54,6 +54,9 @@ const Navbar: React.FC = () => {
                 Jump Start Sports
               </span>
             </Link>
+            <Link to="/programs" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Programs
+            </Link>
           </div>
           
           {/* Desktop Navigation */}

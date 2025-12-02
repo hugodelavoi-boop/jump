@@ -1,59 +1,52 @@
-import React from 'react';
-import { Calendar, Users, Star } from 'lucide-react';
+import React, { useState } from 'react';
 import { StripeProduct } from '../stripe-config';
+import { createCheckoutSession } from '../lib/stripe';
+import { useAuth } from '../contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 interface ProductCardProps {
   product: StripeProduct;
-  onEnroll: (priceId: string) => void;
-  loading?: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onEnroll, loading }) => {
-  const isFree = product.price_display === 'Free';
-  
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+
+  const handlePurchase = async () => {
+    if (!user) {
+      alert('Please sign in to purchase');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { url } = await createCheckoutSession(product.priceId);
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900 leading-tight">
-            {product.name}
-          </h3>
-          <div className="text-right">
-            <div className={`text-2xl font-bold ${isFree ? 'text-green-600' : 'text-blue-600'}`}>
-              {product.price_display}
-            </div>
-          </div>
-        </div>
-        
-        <p className="text-gray-600 mb-6 leading-relaxed">
-          {product.description}
-        </p>
-        
-        <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            <span>Ages 5-12</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            <span>After School</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4" />
-            <span>Multi-Sport</span>
-          </div>
+    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+      <h3 className="text-xl font-bold text-gray-900 mb-3">{product.name}</h3>
+      <p className="text-gray-600 mb-4 text-sm leading-relaxed">{product.description}</p>
+      
+      <div className="flex items-center justify-between">
+        <div className="text-2xl font-bold text-blue-600">
+          {product.priceDisplay}
         </div>
         
         <button
-          onClick={() => onEnroll(product.priceId)}
-          disabled={loading}
-          className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
-            isFree
-              ? 'bg-green-600 hover:bg-green-700 text-white'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
+          onClick={handlePurchase}
+          disabled={loading || !user}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
-          {loading ? 'Processing...' : isFree ? 'Book Free Trial' : 'Enroll Now'}
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+          {loading ? 'Processing...' : product.price === 0 ? 'Enroll Free' : 'Purchase'}
         </button>
       </div>
     </div>
