@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../contexts/AuthContext';
 import { User, Calendar, CreditCard, Settings, LogOut, Phone, Mail, Star } from 'lucide-react';
 import { useUserSubscription } from '../hooks/useUserSubscription';
 import { supabase } from '../lib/supabase';
@@ -273,35 +274,6 @@ const Dashboard: React.FC = () => {
                   <div className="animate-pulse">
                     <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
                     <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-              {/* Active Subscription */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Star className="w-6 h-6 text-green-600" />
-                  <h3 className="text-lg font-semibold">Active Plan</h3>
-                </div>
-                {activeProduct ? (
-                  <div className="space-y-2">
-                    <p className="font-medium text-green-600">{activeProduct.name}</p>
-                    <p className="text-sm text-gray-600">Status: Active</p>
-                    {activeSubscription?.current_period_end && (
-                      <p className="text-sm text-gray-600">
-                        Next billing: {new Date(activeSubscription.current_period_end * 1000).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-gray-600">No active subscription</p>
-                    <button
-                      onClick={() => navigate('/programs')}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      Browse Programs →
-                    </button>
-                  </div>
-                )}
-              </div>
-
                   </div>
                 </div>
               )}
