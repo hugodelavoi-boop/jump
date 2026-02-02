@@ -650,7 +650,7 @@ const EnrolNow: React.FC = () => {
                             className="h-5 w-5 rounded border-gray-300 text-electric-blue focus:ring-electric-blue"
                           />
                           <span className="font-nunito text-gray-700">
-                            My child requires pickup assistance
+                            My child is in Pre-Primary and requires coach pick up at the end of school
                           </span>
                         </label>
                       </div>
@@ -666,7 +666,7 @@ const EnrolNow: React.FC = () => {
                             className="h-5 w-5 rounded border-gray-300 text-electric-blue focus:ring-electric-blue"
                           />
                           <span className="font-nunito text-gray-700">
-                            I consent to photos/videos for promotional use
+                            I consent to photo/video of my child during Jump Start Sports, stored securely and use to promote our programs
                           </span>
                         </label>
                       </div>
