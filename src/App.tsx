@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -20,28 +20,26 @@ import Profile from './pages/Profile';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/programs" element={<Programs />} />
-          <Route path="/success" element={<Success />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/enrol" element={<EnrolNow />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/checkout/success" element={<CheckoutSuccess />} />
-          <Route path="/waiver" element={<Waiver />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/programs" element={<Programs />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/enrol" element={<EnrolNow />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/checkout/success" element={<CheckoutSuccess />} />
+        <Route path="/waiver" element={<Waiver />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 
