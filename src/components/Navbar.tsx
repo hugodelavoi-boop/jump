@@ -43,9 +43,9 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="https://8oo57dacv4.ufs.sh/f/71xRIOSybaYnWPJpSzkzCMOqSAuJXoZlFvweIay7DfUcPRrn" 
-                alt="Jump Start Sports Logo" 
+              <img
+                src="/JSS Favicon.png"
+                alt="Jump Start Sports Logo"
                 className="h-12 w-auto"
               />
               <span className={`font-fredoka font-bold text-xl ${
@@ -53,9 +53,6 @@ const Navbar: React.FC = () => {
               }`}>
                 Jump Start Sports
               </span>
-            </Link>
-            <Link to="/programs" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Programs
             </Link>
           </div>
           
