@@ -69,9 +69,9 @@ const EnrolNow: React.FC = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(formData.parentName && formData.email && formData.mobile && formData.childName && formData.childAge && formData.childSchool);
-      case 2:
         return !!formData.program;
+      case 2:
+        return !!(formData.parentName && formData.email && formData.mobile && formData.childName && formData.childAge && formData.childSchool);
       case 3:
         return formData.termsAccepted;
       default:
@@ -311,8 +311,8 @@ const EnrolNow: React.FC = () => {
                 <div className="text-center">
                   <span className="font-nunito text-sm text-gray-600">
                     Step {currentStep} of 3: {
-                      currentStep === 1 ? 'Child & Parent Details' :
-                      currentStep === 2 ? 'Select Program' :
+                      currentStep === 1 ? 'Select Program' :
+                      currentStep === 2 ? 'Child & Parent Details' :
                       'Review & Consent'
                     }
                   </span>
@@ -336,8 +336,195 @@ const EnrolNow: React.FC = () => {
                   </div>
                 )}
 
-                {/* Step 1: Child & Parent Details */}
+                {/* Step 1: Select Program */}
                 {currentStep === 1 && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <School className="w-6 h-6 text-electric-blue" />
+                      <h2 className="font-fredoka font-bold text-2xl text-navy">
+                        Select Program
+                      </h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      {products.length > 0 ? products.map((product) => (
+                        <label
+                          key={product.price_id}
+                          className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                            formData.program === product.price_id
+                              ? 'border-electric-blue bg-electric-blue/5'
+                              : 'border-gray-200 hover:border-electric-blue/50'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="program"
+                            value={product.price_id}
+                            checked={formData.program === product.price_id}
+                            onChange={handleInputChange}
+                            className="sr-only"
+                          />
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
+                                {product.name}
+                              </h3>
+                              {product.price_display && (
+                                <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
+                                  {product.price_display}
+                                </p>
+                              )}
+                              <div className="mt-2">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
+                                  {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
+                                </span>
+                                {product.price_display === 'A$0.00' && (
+                                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    FREE TRIAL
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Additional product details */}
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    Professional coaching
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    All equipment included
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    Safe environment
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                    Secure payment
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              formData.program === product.price_id
+                                ? 'border-electric-blue bg-electric-blue'
+                                : 'border-gray-300'
+                            }`}>
+                              {product.price_display === 'A$0.00' && (
+                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  FREE TRIAL
+                                </span>
+                              )}
+                              {formData.program === product.price_id && (
+                                <div className="w-2 h-2 bg-white rounded-full" />
+                              )}
+                            </div>
+                          </div>
+                        </label>
+                      )) : products.length === 0 && !productsLoading ? (
+                        // Static fallback products
+                        staticProducts.map((product) => (
+                          <label
+                            key={product.priceId}
+                            className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                              formData.program === product.priceId
+                                ? 'border-electric-blue bg-electric-blue/5'
+                                : 'border-gray-200 hover:border-electric-blue/50'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="program"
+                              value={product.priceId}
+                              checked={formData.program === product.priceId}
+                              onChange={handleInputChange}
+                              className="sr-only"
+                            />
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
+                                  {product.name}
+                                </h3>
+                                <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
+                                  {new Intl.NumberFormat('en-AU', {
+                                    style: 'currency',
+                                    currency: product.currency,
+                                  }).format(product.price)}
+                                </p>
+                                <p className="font-nunito text-gray-600 text-sm">
+                                  {product.description}
+                                </p>
+                                <div className="mt-2">
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
+                                    {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
+                                  </span>
+                                  {product.price === 0 && (
+                                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                      FREE TRIAL
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Additional product details */}
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Professional coaching
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      All equipment included
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Safe environment
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
+                                      Secure payment
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                formData.program === product.priceId
+                                  ? 'border-electric-blue bg-electric-blue'
+                                  : 'border-gray-300'
+                              }`}>
+                                {formData.program === product.priceId && (
+                                  <div className="w-2 h-2 bg-white rounded-full" />
+                                )}
+                              </div>
+                            </div>
+                          </label>
+                        ))
+                      ) : null}
+
+                      {productsLoading && (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
+                          <p className="font-nunito text-gray-600">Loading programs...</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button
+                        variant="primary"
+                        onClick={nextStep}
+                        disabled={!validateStep(1)}
+                      >
+                        Next Step
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Child & Parent Details */}
+                {currentStep === 2 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-6">
                       <User className="w-6 h-6 text-electric-blue" />
@@ -449,193 +636,6 @@ const EnrolNow: React.FC = () => {
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-electric-blue focus:border-electric-blue transition-colors"
                         placeholder="Any medical conditions, allergies, or special requirements we should know about (optional)"
                       />
-                    </div>
-
-                    <div className="flex justify-end">
-                      <Button
-                        variant="primary"
-                        onClick={nextStep}
-                        disabled={!validateStep(1)}
-                      >
-                        Next Step
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 2: Select Program */}
-                {currentStep === 2 && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 mb-6">
-                      <School className="w-6 h-6 text-electric-blue" />
-                      <h2 className="font-fredoka font-bold text-2xl text-navy">
-                        Select Program
-                      </h2>
-                    </div>
-
-                    <div className="space-y-4">
-                      {products.length > 0 ? products.map((product) => (
-                        <label
-                          key={product.price_id}
-                          className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-                            formData.program === product.price_id
-                              ? 'border-electric-blue bg-electric-blue/5'
-                              : 'border-gray-200 hover:border-electric-blue/50'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="program"
-                            value={product.price_id}
-                            checked={formData.program === product.price_id}
-                            onChange={handleInputChange}
-                            className="sr-only"
-                          />
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
-                                {product.name}
-                              </h3>
-                              {product.price_display && (
-                                <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
-                                  {product.price_display}
-                                </p>
-                              )}
-                              <div className="mt-2">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                  {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
-                                </span>
-                                {product.price_display === 'A$0.00' && (
-                                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    FREE TRIAL
-                                  </span>
-                                )}
-                              </div>
-                              
-                              {/* Additional product details */}
-                              <div className="mt-3 pt-3 border-t border-gray-100">
-                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                    Professional coaching
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                    All equipment included
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                    Safe environment
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                    Secure payment
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                              formData.program === product.price_id
-                                ? 'border-electric-blue bg-electric-blue'
-                                : 'border-gray-300'
-                            }`}>
-                              {product.price_display === 'A$0.00' && (
-                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                  FREE TRIAL
-                                </span>
-                              )}
-                              {formData.program === product.price_id && (
-                                <div className="w-2 h-2 bg-white rounded-full" />
-                              )}
-                            </div>
-                          </div>
-                        </label>
-                      )) : products.length === 0 && !productsLoading ? (
-                        // Static fallback products
-                        staticProducts.map((product) => (
-                          <label
-                            key={product.priceId}
-                            className={`block p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-                              formData.program === product.priceId
-                                ? 'border-electric-blue bg-electric-blue/5'
-                                : 'border-gray-200 hover:border-electric-blue/50'
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="program"
-                              value={product.priceId}
-                              checked={formData.program === product.priceId}
-                              onChange={handleInputChange}
-                              className="sr-only"
-                            />
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h3 className="font-fredoka font-semibold text-lg text-navy mb-2">
-                                  {product.name}
-                                </h3>
-                                <p className="font-nunito text-electric-blue font-semibold text-lg mb-2">
-                                  {new Intl.NumberFormat('en-AU', {
-                                    style: 'currency',
-                                    currency: product.currency,
-                                  }).format(product.price)}
-                                </p>
-                                <p className="font-nunito text-gray-600 text-sm">
-                                  {product.description}
-                                </p>
-                                <div className="mt-2">
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-electric-blue/10 text-electric-blue">
-                                    {product.mode === 'subscription' ? 'Recurring Payment' : 'One-time Payment'}
-                                  </span>
-                                  {product.price === 0 && (
-                                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                      FREE TRIAL
-                                    </span>
-                                  )}
-                                </div>
-                                
-                                {/* Additional product details */}
-                                <div className="mt-3 pt-3 border-t border-gray-100">
-                                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Professional coaching
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      All equipment included
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Safe environment
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-electric-blue rounded-full"></div>
-                                      Secure payment
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                formData.program === product.priceId
-                                  ? 'border-electric-blue bg-electric-blue'
-                                  : 'border-gray-300'
-                              }`}>
-                                {formData.program === product.priceId && (
-                                  <div className="w-2 h-2 bg-white rounded-full" />
-                                )}
-                              </div>
-                            </div>
-                          </label>
-                        ))
-                      ) : null}
-                      
-                      {productsLoading && (
-                        <div className="text-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-electric-blue mx-auto mb-4"></div>
-                          <p className="font-nunito text-gray-600">Loading programs...</p>
-                        </div>
-                      )}
                     </div>
 
                     <div className="space-y-4">
