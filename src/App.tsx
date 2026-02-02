@@ -7,6 +7,7 @@ import { Programs } from './pages/Programs';
 import { Success } from './pages/Success';
 import About from './pages/AboutUs';
 import Contact from './pages/Contact';
+import { CheckoutSuccess } from './pages/CheckoutSuccess';
 import Login from './pages/Login';
 import EnrolNow from './pages/EnrolNow';
 import Gallery from './pages/Gallery';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/enrol" element={<EnrolNow />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/waiver" element={<Waiver />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
