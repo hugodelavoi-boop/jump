@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Phone, Mail, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Button from './Button';
 import { getUserProfile, updateUserProfile, validateMobile, formatMobile, UserProfile } from '../lib/profile';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 const ProfileForm: React.FC = () => {
   const { session } = useAuth();

@@ -6,7 +6,7 @@ import SchoolSelector from '../components/SchoolSelector';
 import { useProducts } from '../contexts/ProductContext';
 import { createEnrollment } from '../lib/enrollment';
 import { createCheckoutSession } from '../lib/stripe';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
 import { User, Baby, School, Heart, Camera, Car, CheckCircle2, AlertCircle } from 'lucide-react';
 import { stripeProducts as staticProducts } from '../stripe-config';

@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { Navbar } from './components/Navbar';
-import { Home } from './pages/Home';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
 import { Programs } from './pages/Programs';
 import { Success } from './pages/Success';
-import { About } from './pages/About';
-import { Contact } from './pages/Contact';
-import { Login } from './pages/Login';
+import About from './pages/AboutUs';
+import Contact from './pages/Contact';
+import Login from './pages/Login';
 import EnrolNow from './pages/EnrolNow';
 import Gallery from './pages/Gallery';
 import Waiver from './pages/Waiver';

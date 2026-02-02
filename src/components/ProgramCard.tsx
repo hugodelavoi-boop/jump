@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Clock, Users, MapPin, CreditCard } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { StripeProduct } from '../stripe-config';
 
 interface ProgramCardProps {
