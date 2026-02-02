@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Calendar, CreditCard, Settings, LogOut, Phone, Mail, Star } from 'lucide-react';
+import { User, Calendar, CreditCard, Settings, LogOut, Phone, Mail, Star, FileText, CheckCircle2 } from 'lucide-react';
 import { useUserSubscription } from '../hooks/useUserSubscription';
 import { supabase } from '../lib/supabase';
 import { getProductByPriceId } from '../stripe-config';
-import { User, Calendar, CreditCard, FileText, Mail, Phone, CheckCircle2 } from 'lucide-react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { UserSubscriptionStatus } from '../components/UserSubscriptionStatus';
@@ -34,11 +33,11 @@ const Dashboard: React.FC = () => {
   const { session, loading: authLoading } = useAuth();
   const { subscription, loading: subscriptionLoading } = useUserSubscription();
   const [enrollments, setEnrollments] = useState<UserEnrollment[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     if (session) {
       fetchEnrollments();
     }
