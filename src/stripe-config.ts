@@ -21,7 +21,7 @@ export const stripeProducts: StripeProduct[] = [
   {
     priceId: 'price_1STZkeCAVPkj28mpfOqCD3Uy',
     name: 'Clarkson Primary Trial',
-    description: 'Free trial session for new students at Clarkson Primary.',
+    description: 'Free trial session for new students at Clarkson Primary School.',
     mode: 'payment',
     price: 0.00,
     currency: 'aud',

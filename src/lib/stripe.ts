@@ -1,21 +1,22 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export { stripePromise };
 
-export const createCheckoutSession = async (priceId: string) => {
-  const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`;
-  
-  const headers = {
-    'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-    'Content-Type': 'application/json',
-  };
-
-  const response = await fetch(apiUrl, {
+export const createCheckoutSession = async (priceId: string, enrollmentData?: any) => {
+  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
     method: 'POST',
-    headers,
-    body: JSON.stringify({ priceId })
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({
+      priceId,
+      enrollmentData,
+      successUrl: `${window.location.origin}/checkout/success`,
+      cancelUrl: `${window.location.origin}/programs`,
+    }),
   });
 
   if (!response.ok) {

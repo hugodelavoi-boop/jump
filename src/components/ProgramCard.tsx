@@ -1,91 +1,83 @@
 import React, { useState } from 'react';
 import { Clock, Users, MapPin, CreditCard } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { StripeProduct } from '../stripe-config';
+import { createCheckoutSession, stripePromise } from '../lib/stripe';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ProgramCardProps {
   product: StripeProduct;
-  onEnroll?: (priceId: string) => void;
-  loading?: boolean;
+  className?: string;
 }
 
-export function ProgramCard({ product, onEnroll, loading = false }: ProgramCardProps) {
-  const { session } = useAuth();
-  const [isProcessing, setIsProcessing] = useState(false);
+export function ProgramCard({ product, className = '' }: ProgramCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   const handleEnroll = async () => {
-    if (!session || !onEnroll) return;
-    
-    setIsProcessing(true);
+    if (!user) {
+      // Redirect to login
+      window.location.href = '/auth';
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      await onEnroll(product.priceId);
+      const { sessionId } = await createCheckoutSession(product.priceId);
+      const stripe = await stripePromise;
+      
+      if (stripe) {
+        await stripe.redirectToCheckout({ sessionId });
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to start checkout. Please try again.');
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <div className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ${className}`}>
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">
-              {product.priceDisplay}
-            </div>
-          </div>
+          <span className="text-2xl font-bold text-blue-600">{product.priceDisplay}</span>
         </div>
-
-        {product.description && (
-          <p className="text-gray-600 mb-4 leading-relaxed">
-            {product.description}
-          </p>
-        )}
-
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
+        
+        <p className="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
+        
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center text-gray-600">
+            <Users className="w-5 h-5 mr-3 text-blue-500" />
             <span>Ages 5-12</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            <span>Multi-sport</span>
+          <div className="flex items-center text-gray-600">
+            <Clock className="w-5 h-5 mr-3 text-blue-500" />
+            <span>45-minute sessions</span>
           </div>
-          <div className="flex items-center gap-1">
-            <MapPin className="w-4 h-4" />
-            <span>School venue</span>
+          <div className="flex items-center text-gray-600">
+            <MapPin className="w-5 h-5 mr-3 text-blue-500" />
+            <span>School grounds</span>
           </div>
         </div>
-
-        {session ? (
-          <button
-            onClick={handleEnroll}
-            disabled={loading || isProcessing}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {(loading || isProcessing) ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                Processing...
-              </>
-            ) : (
-              <>
-                <CreditCard className="w-4 h-4" />
-                Enroll Now
-              </>
-            )}
-          </button>
-        ) : (
-          <div className="text-center">
-            <p className="text-gray-600 mb-3">Please sign in to enroll</p>
-            <button
-              disabled
-              className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-lg font-semibold cursor-not-allowed"
-            >
-              Sign In Required
-            </button>
-          </div>
-        )}
+        
+        <button
+          onClick={handleEnroll}
+          disabled={isLoading}
+          className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Processing...
+            </div>
+          ) : (
+            <>
+              <CreditCard className="w-5 h-5 mr-2" />
+              {product.price === 0 ? 'Book Free Trial' : 'Enroll Now'}
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
