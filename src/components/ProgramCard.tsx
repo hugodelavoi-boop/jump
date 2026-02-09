@@ -1,47 +1,41 @@
 import React, { useState } from 'react';
 import { Clock, Users, MapPin, CreditCard } from 'lucide-react';
 import { StripeProduct } from '../stripe-config';
-import { createCheckoutSession, stripePromise } from '../lib/stripe';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProgramCardProps {
   product: StripeProduct;
-  className?: string;
+  onEnroll: (priceId: string) => Promise<void>;
 }
 
-export function ProgramCard({ product, className = '' }: ProgramCardProps) {
+export function ProgramCard({ product, onEnroll }: ProgramCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
 
   const handleEnroll = async () => {
     if (!user) {
-      // Redirect to login
-      window.location.href = '/auth';
+      // Redirect to login or show login modal
       return;
     }
 
     setIsLoading(true);
     try {
-      const { sessionId } = await createCheckoutSession(product.priceId);
-      const stripe = await stripePromise;
-      
-      if (stripe) {
-        await stripe.redirectToCheckout({ sessionId });
-      }
+      await onEnroll(product.priceId);
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      alert('Failed to start checkout. Please try again.');
+      console.error('Enrollment error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ${className}`}>
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-          <span className="text-2xl font-bold text-blue-600">{product.priceDisplay}</span>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-600">{product.priceDisplay}</div>
+          </div>
         </div>
         
         <p className="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
@@ -53,7 +47,7 @@ export function ProgramCard({ product, className = '' }: ProgramCardProps) {
           </div>
           <div className="flex items-center text-gray-600">
             <Clock className="w-5 h-5 mr-3 text-blue-500" />
-            <span>45-minute sessions</span>
+            <span>1 hour sessions</span>
           </div>
           <div className="flex items-center text-gray-600">
             <MapPin className="w-5 h-5 mr-3 text-blue-500" />
@@ -63,7 +57,7 @@ export function ProgramCard({ product, className = '' }: ProgramCardProps) {
         
         <button
           onClick={handleEnroll}
-          disabled={isLoading}
+          disabled={isLoading || !user}
           className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
@@ -78,6 +72,12 @@ export function ProgramCard({ product, className = '' }: ProgramCardProps) {
             </>
           )}
         </button>
+        
+        {!user && (
+          <p className="text-sm text-gray-500 text-center mt-2">
+            Please sign in to enroll
+          </p>
+        )}
       </div>
     </div>
   );

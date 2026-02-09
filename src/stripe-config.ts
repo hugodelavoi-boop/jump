@@ -10,6 +10,15 @@ export interface StripeProduct {
 
 export const stripeProducts: StripeProduct[] = [
   {
+    priceId: 'price_1Synr5CAVPkj28mp72OO15jh',
+    name: 'Clarkson Primary - Term 1 2026 Program Enrolment',
+    description: 'Thursdays - 2:50-3:50pm Weeks 3-9 (19th Feb - 2 April)',
+    mode: 'payment',
+    price: 90.00,
+    currency: 'aud',
+    priceDisplay: 'A$90.00'
+  },
+  {
     priceId: 'price_1SVXFnCAVPkj28mpMahCC9Np',
     name: 'Beldon Primary - Term 1 2026 Program Enrolment',
     description: 'One-term enrolment for Jump Start Sports\' after-school multi-sport sessions. Designed for kids aged 5–12, focused on confidence, movement, and fun. This is exclusive to Beldon Primary.',
@@ -21,7 +30,7 @@ export const stripeProducts: StripeProduct[] = [
   {
     priceId: 'price_1STZkeCAVPkj28mpfOqCD3Uy',
     name: 'Clarkson Primary Trial',
-    description: 'Free trial session for new students at Clarkson Primary School.',
+    description: 'Free trial session to experience our multi-sport program',
     mode: 'payment',
     price: 0.00,
     currency: 'aud',

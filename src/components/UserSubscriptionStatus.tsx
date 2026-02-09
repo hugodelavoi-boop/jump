@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, Calendar } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { getProductByPriceId } from '../stripe-config';
 
 interface Subscription {
   subscription_status: string;
@@ -11,60 +10,93 @@ interface Subscription {
 }
 
 export function UserSubscriptionStatus() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSubscription = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('stripe_user_subscriptions')
-          .select('*')
-          .eq('subscription_status', 'active')
-          .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching subscription:', error);
-        } else if (data) {
-          setSubscription(data);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSubscription();
+    if (user) {
+      fetchSubscriptions();
+    }
   }, [user]);
 
-  if (loading || !subscription) {
+  const fetchSubscriptions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('*');
+
+      if (error) throw error;
+      setSubscriptions(data || []);
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'trialing':
+        return <Clock className="w-5 h-5 text-blue-500" />;
+      default:
+        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'Active';
+      case 'trialing':
+        return 'Trial';
+      case 'past_due':
+        return 'Past Due';
+      case 'canceled':
+        return 'Canceled';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  if (!user || loading) {
     return null;
   }
 
-  const product = getProductByPriceId(subscription.price_id);
-  const endDate = new Date(subscription.current_period_end * 1000);
+  if (subscriptions.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 mb-6">
-      <div className="flex items-center space-x-3">
-        <Crown className="w-6 h-6" />
-        <div className="flex-1">
-          <h3 className="font-semibold">Active Plan</h3>
-          <p className="text-blue-100">{product?.name || 'Unknown Plan'}</p>
-        </div>
-        <div className="text-right">
-          <div className="flex items-center text-blue-100">
-            <Calendar className="w-4 h-4 mr-1" />
-            <span className="text-sm">Until {endDate.toLocaleDateString()}</span>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        Active Subscriptions
+      </h3>
+      <div className="space-y-3">
+        {subscriptions.map((subscription, index) => (
+          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center">
+              {getStatusIcon(subscription.subscription_status)}
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-900">
+                  Subscription Plan
+                </p>
+                <p className="text-sm text-gray-500">
+                  Status: {getStatusText(subscription.subscription_status)}
+                </p>
+              </div>
+            </div>
+            {subscription.current_period_end && (
+              <div className="text-right">
+                <p className="text-sm text-gray-500">
+                  Renews: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
